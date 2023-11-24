@@ -16,3 +16,5 @@ npm start
 
 
 Referred Alchemy for this
+
+If you are not able to view the application propoerly, click on the brave logo (beside the address bar) and disable 'shields are up' 
