@@ -48,7 +48,6 @@ async function connectWebsite() {
     await window.ethereum.request({ method: 'eth_requestAccounts' })
       .then(() => {
         updateButton();
-        console.log("getting address");
         getAddress();
         window.location.replace(location.pathname)
       });

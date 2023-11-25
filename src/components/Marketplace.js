@@ -69,8 +69,6 @@ async function getAllListedNFTs() {
     //Fetch all the details of every NFT from the contract and display
     const items = await Promise.all(transaction.map(async i => {
         
-        console.log("getting token with id : ", i.tokenId.toNumber());
-
         // Filter out NFTs that are not currently listed for sale
         if (!i.currentlyListed) {
             console.log("not listed : ", i.tokenId.toNumber());
@@ -92,7 +90,6 @@ async function getAllListedNFTs() {
             name: meta.name,
             description: meta.description,
         }
-        console.log("got the token");
         return item;
     }));
 
@@ -115,7 +112,7 @@ return (
             </div>
             <div className="flex mt-5 justify-between flex-wrap max-w-screen-xl text-center">
                 {data.map((value, index) => {
-                    return <NFTTile data={value} key={index}></NFTTile>;
+                    return <NFTTile data={value} key={index} showListButton={false}></NFTTile>;
                 })}
             </div>
         </div>            
