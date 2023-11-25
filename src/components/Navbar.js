@@ -94,7 +94,7 @@ async function connectWebsite() {
                 <Link to="/">Marketplace</Link>
               </li>              
               }
-              {/* {location.pathname === "/produceCreditNFT" ? 
+              {location.pathname === "/produceCreditNFT" ? 
               <li className='border-b-2 hover:pb-0 p-2'>
                 <Link to="/produceCreditNFT">Produce Credit</Link>
               </li>
@@ -102,7 +102,7 @@ async function connectWebsite() {
               <li className='hover:border-b-2 hover:pb-0 p-2'>
                 <Link to="/produceCreditNFT">Produce Credit</Link>
               </li>              
-              }        */}
+              }       
               {location.pathname === "/sellNFT" ? 
               <li className='border-b-2 hover:pb-0 p-2'>
                 <Link to="/sellNFT">List My NFT</Link>

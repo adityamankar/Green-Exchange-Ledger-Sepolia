@@ -27,8 +27,17 @@ contract NFTMarketplace is ERC721URIStorage {
         bool currentlyListed;
     }
 
-    //the event emitted when a token is successfully minted and listed on marketplace
+    //the event emitted when a token is successfully listed on marketplace
     event TokenListedSuccess (
+        uint256 indexed tokenId,
+        address owner,
+        address seller,
+        uint256 price,
+        bool currentlyListed
+    );
+
+    //the event emitted when a token is successfully de-listed on marketplace
+    event TokenDeListedSuccess (
         uint256 indexed tokenId,
         address owner,
         address seller,
@@ -42,6 +51,7 @@ contract NFTMarketplace is ERC721URIStorage {
         uint256 indexed tokenId,
         address owner,
         address seller,
+        uint256 price,
         bool currentlyListed
     );
 
@@ -74,32 +84,44 @@ contract NFTMarketplace is ERC721URIStorage {
         return _tokenIds.current();
     }
 
-    //The first time a token is created, it is listed here
-    function createTokenAndList(string memory tokenURI, uint256 price) public payable returns (uint) {
-        //Increment the tokenId counter, which is keeping track of the number of minted NFTs
+    function createToken(string memory tokenURI, uint256 price) public payable returns (uint) {
         _tokenIds.increment();
-        uint256 newTokenId = _tokenIds.current();
 
         //Mint the NFT with tokenId newTokenId to the address who called createToken
+        uint256 newTokenId = _tokenIds.current();
         _safeMint(msg.sender, newTokenId);
 
         //Map the tokenId to the tokenURI (which is an IPFS URL with the NFT metadata)
         _setTokenURI(newTokenId, tokenURI);
 
-        //Helper function to update Global variables and emit an event
-        createListedTokenAndTransfer(newTokenId, price);
+        // Initialize the token in idToListedToken with default values
+        idToListedToken[newTokenId] = ListedToken(
+            newTokenId,
+            payable(msg.sender), // Owner is the minter
+            payable(msg.sender), // No seller yet
+            price,                   // No price set
+            false                // Not listed
+        );
+
+        emit TokenMintSuccess(
+            newTokenId,
+            msg.sender,
+            msg.sender,
+            price,
+            false
+        );
 
         return newTokenId;
     }
 
-    //function createTokenAndAcceptOnly(string memory tokenURI) public returns (uint) {
-    function createTokenAndAcceptOnly(string memory tokenURI) public payable returns (uint) {
-        _tokenIds.increment();
-        uint256 newTokenId = _tokenIds.current();
-        _safeMint(msg.sender, newTokenId);
-        _setTokenURI(newTokenId, tokenURI);
+    //The first time a token is created, it is listed here
+    function createTokenAndList(string memory tokenURI, uint256 price) public payable returns (uint) {
+    
+        uint256 newTokenId = createToken(tokenURI);
 
-        createListedTokenAndNoTransfer(newTokenId);
+        //Helper function to update Global variables and emit an event
+        listTokenOnMarketplace(newTokenId, price);
+
         return newTokenId;
     }
 
@@ -127,6 +149,26 @@ contract NFTMarketplace is ERC721URIStorage {
             true
         );
     }
+
+    function delistTokenFromMarketplace(uint256 tokenId) public {
+        require(_exists(tokenId), "Token does not exist");
+        require(ownerOf(tokenId) == msg.sender, "Caller is not the owner");
+        require(idToListedToken[tokenId].currentlyListed, "Token is not listed");
+
+        idToListedToken[tokenId].currentlyListed = false;
+
+        // Transfer the token back to the owner if needed
+        _transfer(address(this), msg.sender, tokenId);
+
+        // Optionally, emit a delisting event
+        emit TokenDeListedSuccess(
+            tokenId,
+            address(this),
+            msg.sender,
+            0,
+            false
+        );
+    }
     
     function updateSellingPrice(uint256 tokenId, uint256 newPrice) public {
         require(_exists(tokenId), "Token does not exist");
@@ -138,57 +180,6 @@ contract NFTMarketplace is ERC721URIStorage {
 
         // Emit an event if needed
         // emit PriceUpdated(tokenId, newPrice);
-    }
-
-    function createListedTokenAndTransfer(uint256 tokenId, uint256 price) private {
-        //Make sure the sender sent enough ETH to pay for listing
-        require(msg.value == listPrice, "Hopefully sending the correct price");
-        //Just sanity check
-        require(price > 0, "Make sure the price isn't negative");
-
-        //Update the mapping of tokenId's to Token details, useful for retrieval functions
-        idToListedToken[tokenId] = ListedToken(
-            tokenId,
-            payable(address(this)),
-            payable(msg.sender),
-            price,
-            true
-        );
-
-        _transfer(msg.sender, address(this), tokenId);
-        //Emit the event for successful minting and TRANSFER. The frontend parses this message and updates the end user
-        emit TokenListedSuccess(
-            tokenId,
-            address(this),
-            msg.sender,
-            price,
-            true
-        );
-    }
-    
-    function createListedTokenAndNoTransfer(uint256 tokenId) private {
-        //Make sure the sender sent enough ETH to pay for listing
-        require(msg.value == listPrice, "Hopefully sending the correct price");
-        //Just sanity check
-        //require(price > 0, "Make sure the price isn't negative");
-
-        //Update the mapping of tokenId's to Token details, useful for retrieval functions
-        idToListedToken[tokenId] = ListedToken(
-            tokenId,
-            payable(address(this)),
-            payable(msg.sender),
-            0,
-            true
-        );
-
-        //no need for this --->    _transfer(msg.sender, address(this), tokenId);
-        //Emit the event for successful MINTING and no transfer to marketplace. The frontend parses this message and updates the end user
-        emit TokenMintSuccess(
-            tokenId,
-            address(this),
-            msg.sender,
-            true
-        );
     }
 
     //This will return all the NFTs currently listed to be sold on the marketplace

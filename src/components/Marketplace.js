@@ -16,24 +16,6 @@ const sampleData = [
         "currentlySelling":"True",
         "address":"0xe81Bf5A757CB4f7F82a2F23b1e59bE45c33c5b13",
     },
-    // {
-    //     "name": "NFT#2",
-    //     "description": "Alchemy's Second NFT",
-    //     "website":"http://axieinfinity.io",
-    //     "image":"https://gateway.pinata.cloud/ipfs/QmdhoL9K8my2vi3fej97foiqGmJ389SMs55oC5EdkrxF2M",
-    //     "price":"0.03ETH",
-    //     "currentlySelling":"True",
-    //     "address":"0xe81Bf5A757C4f7F82a2F23b1e59bE45c33c5b13",
-    // },
-    // {
-    //     "name": "NFT#3",
-    //     "description": "Alchemy's Third NFT",
-    //     "website":"http://axieinfinity.io",
-    //     "image":"https://gateway.pinata.cloud/ipfs/QmTsRJX7r5gyubjkdmzFrKQhHv74p5wT9LdeF1m3RTqrE5",
-    //     "price":"0.03ETH",
-    //     "currentlySelling":"True",
-    //     "address":"0xe81Bf5A757C4f7F82a2F23b1e59bE45c33c5b13",
-    // },
 ];
 const [data, updateData] = useState(sampleData);
 const [dataFetched, updateFetched] = useState(false);
@@ -50,12 +32,11 @@ async function getAllNFTs() {
 
     //Fetch all the details of every NFT from the contract and display
     const items = await Promise.all(transaction.map(async i => {
+        
         var tokenURI = await contract.tokenURI(i.tokenId);
-        console.log("getting this tokenUri", tokenURI);
         tokenURI = GetIpfsUrlFromPinata(tokenURI);
         let meta = await axios.get(tokenURI);
         meta = meta.data;
-        console.log("metadata from token uri : ", tokenURI, " \t is : ", meta);
 
         let price = ethers.utils.formatUnits(i.price.toString(), 'ether');
         let item = {
@@ -74,8 +55,56 @@ async function getAllNFTs() {
     updateData(items);
 }
 
+async function getAllListedNFTs() {
+    
+    const ethers = require("ethers");
+    //After adding your Hardhat network to your metamask, this code will get providers and signers
+    const provider = new ethers.providers.Web3Provider(window.ethereum);
+    const signer = provider.getSigner();
+    //Pull the deployed contract instance
+    let contract = new ethers.Contract(MarketplaceJSON.address, MarketplaceJSON.abi, signer)
+    //create an NFT Token
+    let transaction = await contract.getAllNFTs()
+
+    //Fetch all the details of every NFT from the contract and display
+    const items = await Promise.all(transaction.map(async i => {
+        
+        console.log("getting token with id : ", i.tokenId.toNumber());
+
+        // Filter out NFTs that are not currently listed for sale
+        if (!i.currentlyListed) {
+            console.log("not listed : ", i.tokenId.toNumber());
+            return null; // Skip this NFT
+        }
+
+        var tokenURI = await contract.tokenURI(i.tokenId);
+        tokenURI = GetIpfsUrlFromPinata(tokenURI);
+        let meta = await axios.get(tokenURI);
+        meta = meta.data;
+
+        let price = ethers.utils.formatUnits(i.price.toString(), 'ether');
+        let item = {
+            price,
+            tokenId: i.tokenId.toNumber(),
+            seller: i.seller,
+            owner: i.owner,
+            image: meta.image,
+            name: meta.name,
+            description: meta.description,
+        }
+        console.log("got the token");
+        return item;
+    }));
+
+    // Filter out null values (NFTs that were not listed)
+    const filteredItems = items.filter(item => item !== null);
+    
+    updateFetched(true);
+    updateData(filteredItems);
+}
+
 if(!dataFetched)
-    getAllNFTs();
+    getAllListedNFTs();
 
 return (
     <div>

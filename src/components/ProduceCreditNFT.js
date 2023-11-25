@@ -73,7 +73,7 @@ export default function ProduceCreditNFT () {
         }
     }
 
-    async function listNFT(e) {
+    async function mintNFT(e) {
         e.preventDefault();
 
         //Upload data to IPFS
@@ -96,16 +96,15 @@ export default function ProduceCreditNFT () {
             listingPrice = listingPrice.toString()
 
             //actually create the NFT
-            //let transaction = await contract.createToken(metadataURL, price, { value: listingPrice })
-            let transaction = await contract.createTokenAndAcceptOnly(metadataURL, { value: listingPrice })
+            let transaction = await contract.createToken(metadataURL, { value: listingPrice })
 
             await transaction.wait()
 
-            alert("Successfully listed your NFT!");
+            alert("Successfully minted your NFT!");
             enableButton();
             updateMessage("");
             updateFormParams({ name: '', description: '', price: ''});
-            window.location.replace("/")
+            window.location.replace("/profile")
         }
         catch(e) {
             alert( "Upload error"+e )
@@ -118,14 +117,14 @@ export default function ProduceCreditNFT () {
         <Navbar></Navbar>
         <div className="flex flex-col place-items-center mt-10" id="nftForm">
             <form className="bg-white shadow-md rounded px-8 pt-4 pb-8 mb-4">
-            <h3 className="text-center font-bold text-purple-500 mb-8">Upload your NFT to the marketplace</h3>
+            <h3 className="text-center font-bold text-purple-500 mb-8">Produce new Credit</h3>
                 <div className="mb-4">
                     <label className="block text-purple-500 text-sm font-bold mb-2" htmlFor="name">NFT Name</label>
-                    <input className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="name" type="text" placeholder="Axie#4563" onChange={e => updateFormParams({...formParams, name: e.target.value})} value={formParams.name}></input>
+                    <input className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="name" type="text" placeholder="CC#426" onChange={e => updateFormParams({...formParams, name: e.target.value})} value={formParams.name}></input>
                 </div>
                 <div className="mb-6">
                     <label className="block text-purple-500 text-sm font-bold mb-2" htmlFor="description">NFT Description</label>
-                    <textarea className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" cols="40" rows="5" id="description" type="text" placeholder="Axie Infinity Collection" value={formParams.description} onChange={e => updateFormParams({...formParams, description: e.target.value})}></textarea>
+                    <textarea className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" cols="40" rows="5" id="description" type="text" placeholder="Carbon Credit Collection" value={formParams.description} onChange={e => updateFormParams({...formParams, description: e.target.value})}></textarea>
                 </div>
                 <div className="mb-6">
                     <label className="block text-purple-500 text-sm font-bold mb-2" htmlFor="price">Price (in ETH)</label>
@@ -137,7 +136,7 @@ export default function ProduceCreditNFT () {
                 </div>
                 <br></br>
                 <div className="text-red-500 text-center">{message}</div>
-                <button onClick={listNFT} className="font-bold mt-10 w-full bg-purple-500 text-white rounded p-2 shadow-lg" id="list-button">
+                <button onClick={mintNFT} className="font-bold mt-10 w-full bg-purple-500 text-white rounded p-2 shadow-lg" id="list-button">
                     List NFT
                 </button>
             </form>
