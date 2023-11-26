@@ -137,7 +137,7 @@ export default function ProduceCreditNFT () {
                 <br></br>
                 <div className="text-red-500 text-center">{message}</div>
                 <button onClick={mintNFT} className="font-bold mt-10 w-full bg-purple-500 text-white rounded p-2 shadow-lg" id="list-button">
-                    List NFT
+                    Mint NFT
                 </button>
             </form>
         </div>

@@ -44,6 +44,7 @@ export default function Profile () {
                 image: meta.image,
                 name: meta.name,
                 description: meta.description,
+                listedOnMarketplace: i.currentlyListed,
             }
             sumPrice += Number(price);
             return item;
