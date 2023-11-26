@@ -5,13 +5,14 @@ import {
   } from "react-router-dom";
   import { GetIpfsUrlFromPinata } from "../utils";
 
-function NFTTile ({data, onList, showListButton = true}) {
+function NFTTile ({data, onList, showListButton = false, showBuyButton = false}) {
     const newTo = {
         pathname:"/nftPage/"+data.tokenId
     }
 
-    const buttonLabel = data.listedOnMarketplace ? "Listed on Marketplace" : "Sell";
-    console.log("button state : ", buttonLabel);
+    const listButtonLabel = data.listedOnMarketplace ? "Listed on Marketplace" : "Sell";
+    const buyButtonLabel = data.iAmOwner ? "You are the owner" : "Buy";
+
     const IPFSUrl = GetIpfsUrlFromPinata(data.image);
 
     const handleListClick = () => {
@@ -19,11 +20,16 @@ function NFTTile ({data, onList, showListButton = true}) {
             onList(data.tokenId);
         }
     };
+    const handleBuyClick = () => {
+        // if (!data.iAmOwner) {
+        //     onList(data.tokenId);
+        // }
+    };
 
     return (
         <div className="nft-tile" style={{  marginLeft: '12px', marginTop: '5px', marginBottom: '12px' }}>
-            <div className="ml-12 mt-5 mb-12 flex flex-col items-center rounded-lg w-48 md:w-72 shadow-2xl">
-                <Link to={newTo}>
+            <Link to={newTo}>
+                <div className="ml-12 mt-5 mb-12 flex flex-col items-center rounded-lg w-48 md:w-72 shadow-2xl">
                     
                     <img src={IPFSUrl} alt="" className="border-2 w-72 h-80 rounded-lg object-cover" crossOrigin="anonymous" />
 
@@ -33,22 +39,29 @@ function NFTTile ({data, onList, showListButton = true}) {
                             {data.description}
                         </p>
                     </div>
-                </Link>
                     <div className="w-72 rounded-lg object-cover" crossOrigin="anonymous" style={{overflow: 'hidden'}}>
+                        {showBuyButton && (
+                            //<button onClick={handleBuyClick} className="list-button" style={NFTButtonStyle} disabled={data.iAmOwner}>
+                            <button style={NFTButtonStyle}>
+                                    {buyButtonLabel}
+                            </button>
+                        )}
                         {showListButton && (
-                            <button onClick={handleListClick} className="list-button" style={listButtonStyle} disabled={data.listedOnMarketplace}>
-                                    {buttonLabel}
+                            <button onClick={handleListClick} className="list-button" style={NFTButtonStyle} disabled={data.listedOnMarketplace}>
+                            {/* <button className="list-button" style={NFTButtonStyle} disabled={data.listedOnMarketplace}> */}
+                                    {listButtonLabel}
                             </button>
                         )}
                     </div>
-            </div>
+                </div>
+            </Link>
         </div>
     );
 }
 
 export default NFTTile;
 
-const listButtonStyle = {
+const NFTButtonStyle = {
     backgroundColor: 'rgba(0, 123, 255, 0.65)', // A shade of blue
     color: 'white',
     padding: '10px 20px',

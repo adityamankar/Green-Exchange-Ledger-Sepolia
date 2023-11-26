@@ -61,6 +61,8 @@ async function getAllListedNFTs() {
     //After adding your Hardhat network to your metamask, this code will get providers and signers
     const provider = new ethers.providers.Web3Provider(window.ethereum);
     const signer = provider.getSigner();
+
+    const walletAddress = await signer.getAddress();
     //Pull the deployed contract instance
     let contract = new ethers.Contract(MarketplaceJSON.address, MarketplaceJSON.abi, signer)
     //create an NFT Token
@@ -89,6 +91,7 @@ async function getAllListedNFTs() {
             image: meta.image,
             name: meta.name,
             description: meta.description,
+            iAmOwner: (walletAddress == i.seller) ? true : false,
         }
         return item;
     }));
@@ -112,7 +115,7 @@ return (
             </div>
             <div className="flex mt-5 justify-between flex-wrap max-w-screen-xl text-center">
                 {data.map((value, index) => {
-                    return <NFTTile data={value} key={index} showListButton={false}></NFTTile>;
+                    return <NFTTile data={value} key={index} showListButton={false} showBuyButton={true}></NFTTile>;
                 })}
             </div>
         </div>            

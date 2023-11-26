@@ -100,7 +100,7 @@ export default function Profile () {
                 <h2 className="font-bold">Your NFTs</h2>
                 <div className="flex justify-center flex-wrap max-w-screen-xl">
                     {data.map((value, index) => (
-                        <NFTTile data={value} key={index} onList={listNFT} showListButton={true}></NFTTile>
+                        <NFTTile data={value} key={index} onList={listNFT} showListButton={true} showBuyButton={false}></NFTTile>
                     ))}
                 </div>
                 <div className="mt-10 text-xl">
