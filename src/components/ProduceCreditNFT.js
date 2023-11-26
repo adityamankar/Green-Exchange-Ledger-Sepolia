@@ -85,7 +85,7 @@ export default function ProduceCreditNFT () {
             const provider = new ethers.providers.Web3Provider(window.ethereum);
             const signer = provider.getSigner();
             disableButton();
-            updateMessage("Uploading NFT(takes 5 mins).. please dont click anything!")
+            updateMessage("Uploading NFT(takes 5 mins).. please don't click anything!")
 
             //Pull the deployed contract instance
             let contract = new ethers.Contract(Marketplace.address, Marketplace.abi, signer)
@@ -96,7 +96,7 @@ export default function ProduceCreditNFT () {
             listingPrice = listingPrice.toString()
 
             //actually create the NFT
-            let transaction = await contract.createToken(metadataURL, { value: listingPrice })
+            let transaction = await contract.createToken(metadataURL, price, { value: listingPrice })
 
             await transaction.wait()
 
