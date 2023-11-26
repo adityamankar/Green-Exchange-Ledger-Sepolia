@@ -84,34 +84,51 @@ contract NFTMarketplace is ERC721URIStorage {
         return _tokenIds.current();
     }
 
-    function createToken(string memory tokenURI, uint256 price) public payable returns (uint) {
+     //The first time a token is created, it is listed here
+    function createToken(string memory tokenURI, uint256 price, bool listNFT) public payable returns (uint) {
+        //Increment the tokenId counter, which is keeping track of the number of minted NFTs
         _tokenIds.increment();
+        uint256 newTokenId = _tokenIds.current();
 
         //Mint the NFT with tokenId newTokenId to the address who called createToken
-        uint256 newTokenId = _tokenIds.current();
         _safeMint(msg.sender, newTokenId);
 
         //Map the tokenId to the tokenURI (which is an IPFS URL with the NFT metadata)
         _setTokenURI(newTokenId, tokenURI);
 
-        // Initialize the token in idToListedToken with default values
-        idToListedToken[newTokenId] = ListedToken(
-            newTokenId,
-            payable(msg.sender), // Owner is the minter
-            payable(msg.sender), // No seller yet
-            price,                   // No price set
-            false                // Not listed
-        );
-
-        emit TokenMintSuccess(
-            newTokenId,
-            msg.sender,
-            msg.sender,
-            price,
-            false
-        );
+        //Helper function to update Global variables and emit an event
+        createListedToken(newTokenId, price, listNFT);
 
         return newTokenId;
+    }
+
+    function createListedToken(uint256 tokenId, uint256 price, bool listNFT) private {
+        //Make sure the sender sent enough ETH to pay for listing
+        require(msg.value == listPrice, "Hopefully sending the correct price");
+        //Just sanity check
+        require(price > 0, "Make sure the price isn't negative");
+
+        //Update the mapping of tokenId's to Token details, useful for retrieval functions
+        idToListedToken[tokenId] = ListedToken(
+            tokenId,
+            payable(address(this)),
+            payable(msg.sender),
+            price,
+            listNFT
+        );
+
+        if (listNFT){
+            _transfer(msg.sender, address(this), tokenId);
+        }
+
+        //Emit the event for successful transfer. The frontend parses this message and updates the end user
+        emit TokenListedSuccess(
+            tokenId,
+            address(this),
+            msg.sender,
+            price,
+            listNFT
+        );
     }
 
     //The first time a token is created, it is listed here

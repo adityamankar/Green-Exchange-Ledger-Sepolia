@@ -73,7 +73,7 @@ export default function ProduceCreditNFT () {
         }
     }
 
-    async function mintNFT(e) {
+    async function mintNFT(e, shouldList) {
         e.preventDefault();
 
         //Upload data to IPFS
@@ -96,8 +96,8 @@ export default function ProduceCreditNFT () {
             listingPrice = listingPrice.toString()
 
             //actually create the NFT
-            let transaction = await contract.createToken(metadataURL, price, { value: listingPrice })
-
+            let transaction = await contract.createToken(metadataURL, price, shouldList, { value: listingPrice });
+        
             await transaction.wait()
 
             alert("Successfully minted your NFT!");
@@ -136,9 +136,15 @@ export default function ProduceCreditNFT () {
                 </div>
                 <br></br>
                 <div className="text-red-500 text-center">{message}</div>
-                <button onClick={mintNFT} className="font-bold mt-10 w-full bg-purple-500 text-white rounded p-2 shadow-lg" id="list-button">
-                    Mint NFT
-                </button>
+                
+                <div className="flex justify-around w-full mt-5" style={{ gap: '10px' }}>
+                    <button onClick={(e) => mintNFT(e, false)} className="font-bold mt-10 w-full bg-purple-500 text-white rounded p-2 shadow-lg" id="mint-button">
+                        Mint NFT
+                    </button>
+                    <button onClick={(e) => mintNFT(e, true)} className="font-bold mt-10 w-full bg-purple-500 text-white rounded p-2 shadow-lg" id="list-button">
+                        Mint and List NFT
+                    </button>
+                </div>
             </form>
         </div>
         </div>
