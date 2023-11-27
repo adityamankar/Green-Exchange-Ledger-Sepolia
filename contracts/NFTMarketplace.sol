@@ -131,16 +131,16 @@ contract NFTMarketplace is ERC721URIStorage {
         );
     }
 
-    //The first time a token is created, it is listed here
-    function createTokenAndList(string memory tokenURI, uint256 price) public payable returns (uint) {
+    // //The first time a token is created, it is listed here
+    // function createTokenAndList(string memory tokenURI, uint256 price) public payable returns (uint) {
     
-        uint256 newTokenId = createToken(tokenURI);
+    //     uint256 newTokenId = createToken(tokenURI);
 
-        //Helper function to update Global variables and emit an event
-        listTokenOnMarketplace(newTokenId, price);
+    //     //Helper function to update Global variables and emit an event
+    //     listTokenOnMarketplace(newTokenId, price);
 
-        return newTokenId;
-    }
+    //     return newTokenId;
+    // }
 
     function listTokenOnMarketplace(uint256 tokenId, uint256 price) public payable {
         require(_exists(tokenId), "Token does not exist");
