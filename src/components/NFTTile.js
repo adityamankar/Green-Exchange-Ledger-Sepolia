@@ -27,34 +27,27 @@ function NFTTile ({data, onList, showListButton = false, showBuyButton = false})
     };
 
     return (
-        <div className="nft-tile" style={{  marginLeft: '12px', marginTop: '5px', marginBottom: '12px' }}>
-            <Link to={newTo}>
-                <div className="ml-12 mt-5 mb-12 flex flex-col items-center rounded-lg w-48 md:w-72 shadow-2xl">
-                    
+        <div className="nft-tile" style={{ marginLeft: '12px', marginTop: '5px', marginBottom: '12px' }}>
+            <div className="ml-12 mt-5 mb-12 flex flex-col items-center rounded-lg w-48 md:w-72 shadow-2xl">
+                <Link to={newTo}>
                     <img src={IPFSUrl} alt="" className="border-2 w-72 h-80 rounded-lg object-cover" crossOrigin="anonymous" />
-
-                    <div className="text-white w-full p-2 rounded-lg pt-5 -mt-20">
-                        <strong className="text-xl">{data.name}</strong>
-                        <p className="display-inline">
-                            {data.description}
-                        </p>
-                    </div>
-                    <div className="w-72 rounded-lg object-cover" crossOrigin="anonymous" style={{overflow: 'hidden'}}>
-                        {showBuyButton && (
-                            //<button onClick={handleBuyClick} className="list-button" style={NFTButtonStyle} disabled={data.iAmOwner}>
-                            <button style={NFTButtonStyle}>
-                                    {buyButtonLabel}
-                            </button>
-                        )}
-                        {showListButton && (
-                            <button onClick={handleListClick} className="list-button" style={NFTButtonStyle} disabled={data.listedOnMarketplace}>
-                            {/* <button className="list-button" style={NFTButtonStyle} disabled={data.listedOnMarketplace}> */}
-                                    {listButtonLabel}
-                            </button>
-                        )}
-                    </div>
+                </Link>
+                
+                {/* Section moved here, between the image and the button */}
+                <div className="text-white w-full p-2 rounded-lg" style={{ backgroundColor: 'rgba(100, 100, 100, 0.5)' /* Light grey transparent background */ }}>
+                    <strong className="text-xl">{data.name}</strong>
+                    <p className="display-inline">{data.description}</p>
                 </div>
-            </Link>
+
+                <div className="w-full" style={{overflow: 'hidden'}}>
+                    {showBuyButton && (
+                        <button style={NFTButtonStyle}>{buyButtonLabel}</button>
+                    )}
+                    {showListButton && (
+                        <button onClick={handleListClick} className="list-button" style={NFTButtonStyle} disabled={data.listedOnMarketplace}>{listButtonLabel}</button>
+                    )}
+                </div>
+            </div>
         </div>
     );
 }
