@@ -27,7 +27,6 @@ export const uploadJSONToIPFS = async(JSONBody) => {
                 success: false,
                 message: error.message,
             }
-
     });
 };
 
