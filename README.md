@@ -6,7 +6,11 @@ Download and install Brave browser : https://brave.com/download/
 
 Download metamask wallet on your browser: https://metamask.io/
 
-Get yourself some free Sepolia (Ether) from https://sepoliafaucet.com/        (You will need to create Alchemy account to get them for free, shown at top-right)
+Get yourself some free Sepolia (Ether) 
+1. You will need to create Alchemy account to get them for free. [ https://www.alchemy.com/ ]
+2. Copy metamask wallet address
+3. Login into Alchemy and visit [ https://sepoliafaucet.com/ ] and paste metamask wallet
+4. Get free Sepolia ETH
 
 Open application and start interacting
 
