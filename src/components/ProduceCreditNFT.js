@@ -16,6 +16,11 @@ export default function ProduceCreditNFT () {
         listButton.disabled = true
         listButton.style.backgroundColor = "grey";
         listButton.style.opacity = 0.3;
+
+        const mintButton = document.getElementById("mint-button")
+        mintButton.disabled = true
+        mintButton.style.backgroundColor = "grey";
+        mintButton.style.opacity = 0.3;
     }
 
     async function enableButton() {
@@ -23,6 +28,11 @@ export default function ProduceCreditNFT () {
         listButton.disabled = false
         listButton.style.backgroundColor = "#A500FF";
         listButton.style.opacity = 1;
+
+        const mintButton = document.getElementById("mint-button")
+        mintButton.disabled = false
+        mintButton.style.backgroundColor = "#A500FF";
+        mintButton.style.opacity = 1;
     }
 
     //This function uploads the NFT image to IPFS
@@ -148,5 +158,5 @@ export default function ProduceCreditNFT () {
             </form>
         </div>
         </div>
-    )
+    )   
 }
