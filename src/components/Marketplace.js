@@ -152,18 +152,18 @@ return (
                 })}
             </div>
         </div>  
-        <div className="transaction-history-section">
+        <div className="transaction-history">
             <h3>Recent Transactions</h3>
-            <ul>
+            <div className="transaction-list">
                 {transactionHistory.map((tx, index) => (
-                    <li key={index}>
-                    <span>Token ID: {tx.tokenId} - </span>
-                    <span>Buyer: {tx.buyer} - </span>
-                    <span>Seller: {tx.seller} - </span>
-                    <span>Price: {tx.price} ETH</span>
-                    </li>
+                <div key={index} className="transaction-tile">
+                    <div>Token ID: {tx.tokenId}</div>
+                    <div>Buyer: {tx.buyer.substring(0, 6)}...{tx.buyer.substring(tx.buyer.length - 4)}</div>
+                    <div>Seller: {tx.seller.substring(0, 6)}...{tx.seller.substring(tx.seller.length - 4)}</div>
+                    <div>Price: {tx.price} ETH</div>
+                </div>
                 ))}
-            </ul>
+            </div>
         </div>
     </div>
 );
