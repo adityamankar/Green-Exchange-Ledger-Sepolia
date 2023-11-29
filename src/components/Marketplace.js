@@ -2,8 +2,9 @@ import Navbar from "./Navbar";
 import NFTTile from "./NFTTile";
 import MarketplaceJSON from "../Marketplace.json";
 import axios from "axios";
-import { useState } from "react";
+// import { useState } from "react";
 import { GetIpfsUrlFromPinata } from "../utils";
+import { useEffect, useState } from 'react';
 
 export default function Marketplace() {
 const sampleData = [
@@ -19,7 +20,39 @@ const sampleData = [
 ];
 const [data, updateData] = useState(sampleData);
 const [dataFetched, updateFetched] = useState(false);
+const [transactionHistory, setTransactionHistory] = useState([]);
 
+// Function to fetch transaction history
+  async function fetchTransactionHistory() {
+    const ethers = require("ethers");
+    const provider = new ethers.providers.Web3Provider(window.ethereum);
+    const contract = new ethers.Contract(
+      MarketplaceJSON.address,
+      MarketplaceJSON.abi,
+      provider
+    );
+
+    const filter = contract.filters.NFTSold(); // Replace with your event
+    const events = await contract.queryFilter(filter);
+    
+    const history = events.map((event) => {
+      const { tokenId, buyer, seller, price } = event.args;
+      return {
+        tokenId: tokenId.toNumber(),
+        buyer,
+        seller,
+        price: ethers.utils.formatEther(price)
+      };
+    });
+    console.log("history is \n", history );
+    setTransactionHistory(history);
+  }
+
+  useEffect(() => {
+    fetchTransactionHistory();
+    // Call other functions like getAllNFTs() here if needed
+  }, []);
+    
 async function getAllNFTs() {
     const ethers = require("ethers");
     //After adding your Hardhat network to your metamask, this code will get providers and signers
@@ -118,7 +151,20 @@ return (
                     return <NFTTile data={value} key={index} showListButton={false} showBuyButton={true}></NFTTile>;
                 })}
             </div>
-        </div>            
+        </div>  
+        <div className="transaction-history-section">
+            <h3>Recent Transactions</h3>
+            <ul>
+                {transactionHistory.map((tx, index) => (
+                    <li key={index}>
+                    <span>Token ID: {tx.tokenId} - </span>
+                    <span>Buyer: {tx.buyer} - </span>
+                    <span>Seller: {tx.seller} - </span>
+                    <span>Price: {tx.price} ETH</span>
+                    </li>
+                ))}
+            </ul>
+        </div>
     </div>
 );
 

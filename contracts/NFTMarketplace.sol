@@ -45,6 +45,15 @@ contract NFTMarketplace is ERC721URIStorage {
         bool currentlyListed
     );
 
+    //the event emitted when a token is successfully traded on marketplace
+    event NFTSold(
+        uint indexed tokenId,
+        address buyer,
+        address seller,
+        uint price
+    );
+
+
     //the event emitted when a token is successfully minted but not listed on marketplace
     //same as above for time being. need to update when we work with prices
     event TokenMintSuccess(
@@ -264,6 +273,13 @@ contract NFTMarketplace is ERC721URIStorage {
         payable(owner).transfer(listPrice);
         //Transfer the proceeds from the sale to the seller of the NFT
         payable(seller).transfer(msg.value);
+
+        emit NFTSold(
+            tokenId,
+            msg.sender,
+            seller,
+            price
+        );
     }
 
     //We might add a resell token function in the future
