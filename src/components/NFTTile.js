@@ -39,14 +39,16 @@ function NFTTile ({data, onList, showListButton = false, showBuyButton = false})
                     <p className="display-inline">{data.description}</p>
                 </div>
 
-                <div className="w-full" style={{overflow: 'hidden'}}>
-                    {showBuyButton && (
-                        <button style={NFTButtonStyle}>{buyButtonLabel}</button>
-                    )}
-                    {showListButton && (
-                        <button onClick={handleListClick} className="list-button" style={NFTButtonStyle} disabled={data.listedOnMarketplace}>{listButtonLabel}</button>
-                    )}
-                </div>
+                <Link to={newTo} className="w-full">
+                    <div className="w-full" style={{ overflow: 'hidden' }}>
+                        {showBuyButton && (
+                            <button style={NFTButtonStyle}>{buyButtonLabel}</button>
+                        )}
+                        {showListButton && (
+                            <button onClick={handleListClick} className="list-button" style={NFTButtonStyle} disabled={data.listedOnMarketplace}>{listButtonLabel}</button>
+                        )}
+                    </div>
+                </Link>
             </div>
         </div>
     );
