@@ -32,18 +32,56 @@ const [transactionHistory, setTransactionHistory] = useState([]);
       provider
     );
 
-    const filter = contract.filters.NFTSold(); // Replace with your event
-    const events = await contract.queryFilter(filter);
+    const soldFilter = contract.filters.NFTSold();
+    const mintedFilter = contract.filters.TokenMintSuccess();
+    //const mintedAndListedFilter = contract.filters.TokenMintAndListSuccess();
+    const listedFilter = contract.filters.TokenListedSuccess();
+    // const delistedFilter = contract.filters.NFTDelisted();
+      
+    // Query the contract for each event
+    const soldEvents = await contract.queryFilter(soldFilter);
+    const mintedEvents = await contract.queryFilter(mintedFilter);
+    //const mintedAndListedEvents = await contract.queryFilter(mintedAndListedFilter);
+    const listedEvents = await contract.queryFilter(listedFilter);
+    // const delistedEvents = await contract.queryFilter(delistedFilter);
     
-    const history = events.map((event) => {
-      const { tokenId, buyer, seller, price } = event.args;
-      return {
-        tokenId: tokenId.toNumber(),
-        buyer,
-        seller,
-        price: ethers.utils.formatEther(price)
-      };
-    });
+    // Merge and map the events to your desired structure
+    const history = [
+        ...soldEvents.map((event) => ({
+            type: 'SOLD',
+            tokenId: event.args.tokenId.toNumber(),
+            buyer: event.args.buyer,
+            seller: event.args.seller,
+            price: ethers.utils.formatEther(event.args.price)
+        })),
+        ...mintedEvents.map((event) => ({
+            type: 'MINTED',
+            tokenId: event.args.tokenId.toNumber(),
+            owner: event.args.owner,
+            seller: event.args.seller,
+            price: ethers.utils.formatEther(event.args.price),
+            currentlyListed: true
+        })),
+        // ...mintedAndListedEvents.map((event) => ({
+        //     type: 'MINTED AND LISTED',
+        //     tokenId: event.args.tokenId.toNumber(),
+        //     owner: event.args.owner,
+        //     seller: event.args.seller,
+        //     price: ethers.utils.formatEther(event.args.price),
+        //     currentlyListed: true
+        // })),
+        ...listedEvents.map((event) => ({
+            type: 'LISTED',
+            tokenId: event.args.tokenId.toNumber(),
+            owner: event.args.owner,
+            seller: event.args.seller,
+            price: ethers.utils.formatEther(event.args.price),
+            currentlyListed: true
+        })),
+        // ...delistedEvents.map((event) => ({
+        //     type: 'Delisted',
+        // })),
+    ];
     console.log("history is \n", history );
     setTransactionHistory(history);
   }
@@ -152,18 +190,21 @@ return (
                 })}
             </div>
         </div>  
-        <div className="transaction-history">
-            <h3>Recent Transactions</h3>
-            <div className="transaction-list">
-                {transactionHistory.map((tx, index) => (
-                <div key={index} className="transaction-tile">
-                    <div>Token ID: {tx.tokenId}</div>
-                    <div>Buyer: {tx.buyer.substring(0, 6)}...{tx.buyer.substring(tx.buyer.length - 4)}</div>
-                    <div>Seller: {tx.seller.substring(0, 6)}...{tx.seller.substring(tx.seller.length - 4)}</div>
-                    <div>Price: {tx.price} ETH</div>
+        <div className="transaction-history" style={{ backgroundColor: 'rgba(200, 200, 200, 0.3)'}}>
+            <h3 style={{ opacity: 0.5, fontWeight: 'bold', fontSize: '1.5em', color: 'black' }}>Recent Transactions</h3>
+            <div className="transaction-history" style={{ backgroundColor: 'rgba(200, 200, 200, 0.6)'}}>
+                <div className="transaction-list">
+                    {transactionHistory.map((tx, index) => (
+                        <div key={index} className="transaction-tile">
+                            <h4 className="transaction-heading" style={{color: 'purple', fontWeight: 'bold'}}>{tx.type}</h4>
+                            <div>Token ID: {tx.tokenId}</div>
+                            <div>Buyer: {tx.buyer ? `${tx.buyer.substring(0, 6)}...${tx.buyer.substring(tx.buyer.length - 4)}` : 'N/A'}</div>
+                            <div>Seller: {tx.seller ? `${tx.seller.substring(0, 6)}...${tx.seller.substring(tx.seller.length - 4)}` : 'N/A'}</div>
+                            <div style={{color: 'green', fontWeight: 'bold'}}>Price: {tx.price} ETH</div>
+                        </div>
+                    ))}
                 </div>
-                ))}
-            </div>
+            </div>  
         </div>
     </div>
 );

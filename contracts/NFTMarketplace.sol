@@ -64,6 +64,14 @@ contract NFTMarketplace is ERC721URIStorage {
         bool currentlyListed
     );
 
+    event TokenMintAndListSuccess(
+        uint256 indexed tokenId,
+        address owner,
+        address seller,
+        uint256 price,
+        bool currentlyListed
+    );
+
     //This mapping maps tokenId to token info and is helpful when retrieving details about a tokenId
     mapping(uint256 => ListedToken) private idToListedToken;
 
@@ -106,12 +114,12 @@ contract NFTMarketplace is ERC721URIStorage {
         _setTokenURI(newTokenId, tokenURI);
 
         //Helper function to update Global variables and emit an event
-        createListedToken(newTokenId, price, listNFT);
+        handleCreatedToken(newTokenId, price, listNFT);
 
         return newTokenId;
     }
 
-    function createListedToken(uint256 tokenId, uint256 price, bool listNFT) private {
+    function handleCreatedToken(uint256 tokenId, uint256 price, bool listNFT) private {
         //Make sure the sender sent enough ETH to pay for listing
         require(msg.value == listPrice, "Hopefully sending the correct price");
         //Just sanity check
@@ -128,16 +136,25 @@ contract NFTMarketplace is ERC721URIStorage {
 
         if (listNFT){
             _transfer(msg.sender, address(this), tokenId);
+            
+            //Emit the event for successful transfer. The frontend parses this message and updates the end user
+            emit TokenMintAndListSuccess(
+                tokenId,
+                address(this),
+                msg.sender,
+                price,
+                listNFT
+            );
         }
-
-        //Emit the event for successful transfer. The frontend parses this message and updates the end user
-        emit TokenListedSuccess(
-            tokenId,
-            address(this),
-            msg.sender,
-            price,
-            listNFT
-        );
+        else {
+            event listNFT(
+                tokenId,
+                address(this),
+                msg.sender,
+                price,
+                listNFT
+            );
+        }
     }
 
     // //The first time a token is created, it is listed here
