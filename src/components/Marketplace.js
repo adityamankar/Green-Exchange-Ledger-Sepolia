@@ -5,6 +5,8 @@ import axios from "axios";
 // import { useState } from "react";
 import { GetIpfsUrlFromPinata } from "../utils";
 import { useEffect, useState } from 'react';
+import { Nav, Tab } from 'react-bootstrap';
+
 
 export default function Marketplace() {
 const sampleData = [
@@ -21,7 +23,9 @@ const sampleData = [
 const [data, updateData] = useState(sampleData);
 const [dataFetched, updateFetched] = useState(false);
 const [transactionHistory, setTransactionHistory] = useState([]);
+const [tabKey, setTabKey] = useState('all');
 
+    
 // Function to fetch transaction history
   async function fetchTransactionHistory() {
     const ethers = require("ethers");
@@ -177,6 +181,22 @@ async function getAllListedNFTs() {
 if(!dataFetched)
     getAllListedNFTs();
 
+    function TransactionList({ transactions }) {
+    return (
+    <div className="transaction-list">
+        {transactions.map((tx, index) => (
+        <div key={index} className="transaction-tile">
+            <h4 className="transaction-heading">{tx.type}</h4>
+            <div>Token ID: {tx.tokenId}</div>
+            <div>Buyer: {tx.buyer ? `${tx.buyer.substring(0, 6)}...${tx.buyer.substring(tx.buyer.length - 4)}` : 'N/A'}</div>
+            <div>Seller: {tx.seller ? `${tx.seller.substring(0, 6)}...${tx.seller.substring(tx.seller.length - 4)}` : 'N/A'}</div>
+            <div>Price: {tx.price} ETH</div>
+        </div>
+        ))}
+    </div>
+    );
+    }
+    
 return (
     <div>
         <Navbar></Navbar>
@@ -190,21 +210,37 @@ return (
                 })}
             </div>
         </div>  
-        <div className="transaction-history" style={{ backgroundColor: 'rgba(200, 200, 200, 0.3)'}}>
-            <h3 style={{ opacity: 0.5, fontWeight: 'bold', fontSize: '1.5em', color: 'black' }}>Recent Transactions</h3>
-            <div className="transaction-history" style={{ backgroundColor: 'rgba(200, 200, 200, 0.6)'}}>
-                <div className="transaction-list">
-                    {transactionHistory.map((tx, index) => (
-                        <div key={index} className="transaction-tile">
-                            <h4 className="transaction-heading" style={{color: 'purple', fontWeight: 'bold'}}>{tx.type}</h4>
-                            <div>Token ID: {tx.tokenId}</div>
-                            <div>Buyer: {tx.buyer ? `${tx.buyer.substring(0, 6)}...${tx.buyer.substring(tx.buyer.length - 4)}` : 'N/A'}</div>
-                            <div>Seller: {tx.seller ? `${tx.seller.substring(0, 6)}...${tx.seller.substring(tx.seller.length - 4)}` : 'N/A'}</div>
-                            <div style={{color: 'green', fontWeight: 'bold'}}>Price: {tx.price} ETH</div>
-                        </div>
-                    ))}
-                </div>
-            </div>  
+        <div className="transaction-history">
+        <Tab.Container id="transaction-tabs" defaultActiveKey="all" activeKey={tabKey} onSelect={(k) => setTabKey(k)}>
+          <Nav variant="pills" className="flex-row">
+            <Nav.Item>
+              <Nav.Link eventKey="all">All</Nav.Link>
+            </Nav.Item>
+            <Nav.Item>
+              <Nav.Link eventKey="sold">Sold</Nav.Link>
+            </Nav.Item>
+            <Nav.Item>
+              <Nav.Link eventKey="minted">Minted</Nav.Link>
+            </Nav.Item>
+            <Nav.Item>
+              <Nav.Link eventKey="listed">Listed</Nav.Link>
+            </Nav.Item>
+          </Nav>
+          <Tab.Content>
+            <Tab.Pane eventKey="all">
+              <TransactionList transactions={transactionHistory} />
+            </Tab.Pane>
+            <Tab.Pane eventKey="sold">
+              <TransactionList transactions={transactionHistory.filter(tx => tx.type === 'SOLD')} />
+            </Tab.Pane>
+            <Tab.Pane eventKey="minted">
+              <TransactionList transactions={transactionHistory.filter(tx => tx.type === 'MINTED')} />
+            </Tab.Pane>
+            <Tab.Pane eventKey="listed">
+              <TransactionList transactions={transactionHistory.filter(tx => tx.type === 'LISTED')} />
+            </Tab.Pane>
+          </Tab.Content>
+        </Tab.Container>
         </div>
     </div>
 );

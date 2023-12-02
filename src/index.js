@@ -13,6 +13,7 @@ import Marketplace from './components/Marketplace';
 import Profile from './components/Profile';
 import NFTPage from './components/NFTpage';
 import ProduceCreditNFT from './components/ProduceCreditNFT';
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
