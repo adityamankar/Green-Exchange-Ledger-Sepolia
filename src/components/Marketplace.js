@@ -38,16 +38,16 @@ const [tabKey, setTabKey] = useState('all');
 
     const soldFilter = contract.filters.NFTSold();
     const mintedFilter = contract.filters.TokenMintSuccess();
-    //const mintedAndListedFilter = contract.filters.TokenMintAndListSuccess();
+    const mintedAndListedFilter = contract.filters.TokenMintAndListSuccess();
     const listedFilter = contract.filters.TokenListedSuccess();
-    // const delistedFilter = contract.filters.NFTDelisted();
+    const delistedFilter = contract.filters.TokenDeListedSuccess();
       
     // Query the contract for each event
     const soldEvents = await contract.queryFilter(soldFilter);
     const mintedEvents = await contract.queryFilter(mintedFilter);
-    //const mintedAndListedEvents = await contract.queryFilter(mintedAndListedFilter);
+    const mintedAndListedEvents = await contract.queryFilter(mintedAndListedFilter);
     const listedEvents = await contract.queryFilter(listedFilter);
-    // const delistedEvents = await contract.queryFilter(delistedFilter);
+    const delistedEvents = await contract.queryFilter(delistedFilter);
     
     // Merge and map the events to your desired structure
     const history = [
@@ -66,14 +66,14 @@ const [tabKey, setTabKey] = useState('all');
             price: ethers.utils.formatEther(event.args.price),
             currentlyListed: true
         })),
-        // ...mintedAndListedEvents.map((event) => ({
-        //     type: 'MINTED AND LISTED',
-        //     tokenId: event.args.tokenId.toNumber(),
-        //     owner: event.args.owner,
-        //     seller: event.args.seller,
-        //     price: ethers.utils.formatEther(event.args.price),
-        //     currentlyListed: true
-        // })),
+        ...mintedAndListedEvents.map((event) => ({
+            type: 'MINTED AND LISTED',
+            tokenId: event.args.tokenId.toNumber(),
+            owner: event.args.owner,
+            seller: event.args.seller,
+            price: ethers.utils.formatEther(event.args.price),
+            currentlyListed: true
+        })),
         ...listedEvents.map((event) => ({
             type: 'LISTED',
             tokenId: event.args.tokenId.toNumber(),
@@ -82,9 +82,14 @@ const [tabKey, setTabKey] = useState('all');
             price: ethers.utils.formatEther(event.args.price),
             currentlyListed: true
         })),
-        // ...delistedEvents.map((event) => ({
-        //     type: 'Delisted',
-        // })),
+        ...delistedEvents.map((event) => ({
+            type: 'DELISTED',
+            tokenId: event.args.tokenId.toNumber(),
+            owner: event.args.owner,
+            seller: event.args.seller,
+            price: ethers.utils.formatEther(event.args.price),
+            currentlyListed: false
+        })),
     ];
     console.log("history is \n", history );
     setTransactionHistory(history);
@@ -223,7 +228,13 @@ return (
               <Nav.Link eventKey="minted">Minted</Nav.Link>
             </Nav.Item>
             <Nav.Item>
+              <Nav.Link eventKey="mintedAndListed">Minted and Listed</Nav.Link>
+            </Nav.Item>
+            <Nav.Item>
               <Nav.Link eventKey="listed">Listed</Nav.Link>
+            </Nav.Item>
+            <Nav.Item>
+              <Nav.Link eventKey="delisted">Listed</Nav.Link>
             </Nav.Item>
           </Nav>
           <Tab.Content>
@@ -236,8 +247,14 @@ return (
             <Tab.Pane eventKey="minted">
               <TransactionList transactions={transactionHistory.filter(tx => tx.type === 'MINTED')} />
             </Tab.Pane>
+            <Tab.Pane eventKey="mintedAndListed">
+              <TransactionList transactions={transactionHistory.filter(tx => tx.type === 'MINTED AND LISTED')} />
+            </Tab.Pane>
             <Tab.Pane eventKey="listed">
               <TransactionList transactions={transactionHistory.filter(tx => tx.type === 'LISTED')} />
+            </Tab.Pane>
+            <Tab.Pane eventKey="delisted">
+              <TransactionList transactions={transactionHistory.filter(tx => tx.type === 'DELISTED')} />
             </Tab.Pane>
           </Tab.Content>
         </Tab.Container>

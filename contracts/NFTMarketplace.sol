@@ -147,7 +147,7 @@ contract NFTMarketplace is ERC721URIStorage {
             );
         }
         else {
-            event listNFT(
+            emit TokenMintSuccess(
                 tokenId,
                 address(this),
                 msg.sender,
@@ -193,7 +193,7 @@ contract NFTMarketplace is ERC721URIStorage {
         );
     }
 
-    function delistTokenFromMarketplace(uint256 tokenId) public {
+    function delistTokenFromMarketplace(uint256 tokenId, uint256 price) public {
         require(_exists(tokenId), "Token does not exist");
         require(ownerOf(tokenId) == msg.sender, "Caller is not the owner");
         require(idToListedToken[tokenId].currentlyListed, "Token is not listed");
@@ -208,11 +208,10 @@ contract NFTMarketplace is ERC721URIStorage {
             tokenId,
             address(this),
             msg.sender,
-            0,
+            price,
             false
         );
     }
-    
     function updateSellingPrice(uint256 tokenId, uint256 newPrice) public {
         require(_exists(tokenId), "Token does not exist");
         require(idToListedToken[tokenId].currentlyListed, "Token is not listed");
@@ -277,14 +276,16 @@ contract NFTMarketplace is ERC721URIStorage {
         require(msg.value == price, "Please submit the asking price in order to complete the purchase");
 
         //update the details of the token
-        idToListedToken[tokenId].currentlyListed = true;
+        idToListedToken[tokenId].currentlyListed = false;
         idToListedToken[tokenId].seller = payable(msg.sender);
         _itemsSold.increment();
 
         //Actually transfer the token to the new owner
         _transfer(address(this), msg.sender, tokenId);
+        
         //approve the marketplace to sell NFTs on your behalf
-        approve(address(this), tokenId);
+        //I have commented the approve as the sold NFT should be privately transffered in wallet and not to be listed on marketplace
+        //approve(address(this), tokenId);
 
         //Transfer the listing fee to the marketplace creator
         payable(owner).transfer(listPrice);
@@ -298,8 +299,4 @@ contract NFTMarketplace is ERC721URIStorage {
             price
         );
     }
-
-    //We might add a resell token function in the future
-    //In that case, tokens won't be listed by default but users can send a request to actually list a token
-    //Currently NFTs are listed by default
 }
