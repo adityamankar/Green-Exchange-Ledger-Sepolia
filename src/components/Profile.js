@@ -29,7 +29,7 @@ export default function Profile () {
         * Below function takes the metadata from tokenURI and the data returned by getMyNFTs() contract function
         * and creates an object of information that is to be displayed
         */
-        
+
         const items = await Promise.all(transaction.map(async i => {
             const tokenURI = await contract.tokenURI(i.tokenId);
             let meta = await axios.get(tokenURI);
@@ -56,19 +56,30 @@ export default function Profile () {
     }
 
     const listNFT = async (tokenId) => {
+        
+        //const tokenPrice = await contract.getTokenPrice(tokenId);
+        const selectedNFT = data.find((item) => item.tokenId === Number(tokenId));
+
         const ethers = require("ethers");
         // Logic to interact with the smart contract
         // You need ethers.js setup similar to getNFTData
         const provider = new ethers.providers.Web3Provider(window.ethereum);
         const signer = provider.getSigner();
-        const contract = new ethers.Contract(MarketplaceJSON.address, MarketplaceJSON.abi, signer);
+        const contract = new ethers.Contract(
+            MarketplaceJSON.address,
+            MarketplaceJSON.abi,
+            signer
+        );
         const listingPrice = await contract.getListPrice();
         // Call the smart contract function
-        await contract.listTokenOnMarketplace(tokenId, ethers.utils.parseUnits("0.1", 'ether'), { value: listingPrice });
+        await contract.listTokenOnMarketplace(
+            tokenId,
+            ethers.utils.parseUnits(selectedNFT.price.toString(), "ether"),
+            { value: listingPrice }
+        );
         // Refresh the NFT data to reflect changes
-        await getNFTData();
 
-        window.location.replace("/")
+        window.location.replace("/");
     };
 
     const params = useParams();
@@ -80,13 +91,13 @@ export default function Profile () {
         <div className="profileClass" style={{"min-height":"100vh"}}>
             <Navbar></Navbar>
             <div className="profileClass">
-            <div className="flex text-center flex-col mt-11 md:text-2xl text-white">
-                <div className="mb-5">
-                    <h2 className="font-bold">Wallet Address</h2>  
-                    {address}
+                <div className="flex text-center flex-col mt-11 md:text-2xl text-white">
+                    <div className="mb-5">
+                        <h2 className="font-bold">Wallet Address</h2>
+                        {address}
+                    </div>
                 </div>
-            </div>
-            <div className="flex flex-row text-center justify-center mt-10 md:text-2xl text-white">
+                <div className="flex flex-row text-center justify-center mt-10 md:text-2xl text-white">
                     <div>
                         <h2 className="font-bold">No. of NFTs</h2>
                         {data.length}
@@ -95,18 +106,18 @@ export default function Profile () {
                         <h2 className="font-bold">Total Value</h2>
                         {totalPrice} ETH
                     </div>
-            </div>
-            <div className="flex flex-col text-center items-center mt-11 text-white">
-                <h2 className="font-bold">Your NFTs</h2>
-                <div className="flex justify-center flex-wrap max-w-screen-xl">
-                    {data.map((value, index) => (
-                        <NFTTile data={value} key={index} onList={listNFT} showListButton={true} showBuyButton={false}></NFTTile>
-                    ))}
                 </div>
-                <div className="mt-10 text-xl">
-                    {data.length == 0 ? "Oops, No NFT data to display (Are you logged in?)":""}
+                <div className="flex flex-col text-center items-center mt-11 text-white">
+                    <h2 className="font-bold">Your NFTs</h2>
+                    <div className="flex justify-center flex-wrap max-w-screen-xl">
+                        {data.map((value, index) => (
+                            <NFTTile data={value} key={index} onList={listNFT} showListButton={true} showBuyButton={false}></NFTTile>
+                        ))}
+                    </div>
+                    <div className="mt-10 text-xl">
+                        {data.length == 0 ? "Oops, No NFT data to display (Are you logged in?)" : ""}
+                    </div>
                 </div>
-            </div>
             </div>
         </div>
     )

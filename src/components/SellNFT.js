@@ -43,7 +43,6 @@ export default function SellNFT () {
             meta = meta.data;
 
             let price = ethers.utils.formatUnits(i.price.toString(), 'ether');
-            console.log("price : ", price);
             let item = {
                 price,
                 tokenId: i.tokenId.toNumber(),

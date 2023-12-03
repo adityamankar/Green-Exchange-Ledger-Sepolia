@@ -27,7 +27,6 @@ async function getNFTData(tokenId) {
     tokenURI = GetIpfsUrlFromPinata(tokenURI);
     let meta = await axios.get(tokenURI);
     meta = meta.data;
-    console.log(listedToken);
 
     let item = {
         price: meta.price,
@@ -38,10 +37,8 @@ async function getNFTData(tokenId) {
         name: meta.name,
         description: meta.description,
     }
-    console.log(item);
     updateData(item);
     updateDataFetched(true);
-    console.log("address", addr)
     updateCurrAddress(addr);
 }
 
@@ -67,15 +64,13 @@ async function buyNFT(tokenId) {
         alert("Upload Error"+e)
     }
 }
-
+    
     const params = useParams();
     const tokenId = params.tokenId;
     if(!dataFetched)
         getNFTData(tokenId);
     if (typeof data.image == "string"){
-        console.log("NFTPage - getting image GetIpfsUrlFromPinata() from Pinata")
         data.image = GetIpfsUrlFromPinata(data.image);
-        console.log("image : ",data.image)
     }
     return(
         <div style={{"min-height":"100vh"}}>

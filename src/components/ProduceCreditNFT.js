@@ -47,7 +47,6 @@ export default function ProduceCreditNFT () {
             if(response.success === true) {
                 enableButton();
                 updateMessage("")
-                console.log("Uploaded image to Pinata: ", response.pinataURL)
                 setFileURL(response.pinataURL);
             }
         }
@@ -74,7 +73,6 @@ export default function ProduceCreditNFT () {
             //upload the metadata JSON to IPFS
             const response = await uploadJSONToIPFS(nftJSON);
             if(response.success === true){
-                console.log("Uploaded JSON to Pinata: ", response)
                 return response.pinataURL;
             }
         }
@@ -121,7 +119,6 @@ export default function ProduceCreditNFT () {
         }
     }
 
-    console.log("Working", process.env);
     return (
         <div className="">
         <Navbar></Navbar>

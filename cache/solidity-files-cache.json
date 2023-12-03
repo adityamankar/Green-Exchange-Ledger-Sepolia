@@ -660,8 +660,8 @@
       "artifacts": []
     },
     "E:\\GreenExchangeLedger\\Sepolia\\Green-Exchange-Ledger-Sepolia\\contracts\\NFTMarketplace.sol": {
-      "lastModificationDate": 1701566491644,
-      "contentHash": "c1261cbeab676c042175057a0ace28fb",
+      "lastModificationDate": 1701582423696,
+      "contentHash": "f44991b8e5eba4af992c3974bcacc698",
       "sourceName": "contracts/NFTMarketplace.sol",
       "solcConfig": {
         "version": "0.8.4",
@@ -690,10 +690,11 @@
         "hardhat/console.sol",
         "@openzeppelin/contracts/utils/Counters.sol",
         "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol",
-        "@openzeppelin/contracts/token/ERC721/ERC721.sol"
+        "@openzeppelin/contracts/token/ERC721/ERC721.sol",
+        "hardhat/console.sol"
       ],
       "versionPragmas": [
-        ">=0.8.0"
+        "^0.8.0"
       ],
       "artifacts": [
         "NFTMarketplace"

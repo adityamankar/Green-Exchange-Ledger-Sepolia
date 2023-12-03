@@ -59,7 +59,6 @@ async function connectWebsite() {
     let val = window.ethereum.isConnected();
     if(val)
     {
-      console.log("Connected to web3");
       getAddress();
       toggleConnect(val);
       updateButton();

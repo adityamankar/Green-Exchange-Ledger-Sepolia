@@ -1,5 +1,5 @@
 //SPDX-License-Identifier: Unlicense
-pragma solidity >=0.8.0;
+pragma solidity ^0.8.0;
 
 import "hardhat/console.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
@@ -166,7 +166,7 @@ contract NFTMarketplace is ERC721URIStorage {
     //     listTokenOnMarketplace(newTokenId, price);
 
     //     return newTokenId;
-    // }
+    // } 
 
     function listTokenOnMarketplace(uint256 tokenId, uint256 price) public payable {
         require(_exists(tokenId), "Token does not exist");
@@ -270,6 +270,8 @@ contract NFTMarketplace is ERC721URIStorage {
         return items;
     }
 
+
+    //do i need to ask user to pay (listPrice + TokenPrice)
     function executeSale(uint256 tokenId) public payable {
         uint price = idToListedToken[tokenId].price;
         address seller = idToListedToken[tokenId].seller;
