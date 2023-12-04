@@ -76,3 +76,17 @@
     grid-template-columns: 1fr;
   }
 }
+
+li a {
+  text-decoration: none;
+  color: #fff;
+}
+
+.nav-btn-width {
+  width: max-content;
+  margin: 0 0 0 15px;
+}
+
+.connect-btn {
+  vertical-align: sub;
+}
