@@ -64,6 +64,35 @@ async function buyNFT(tokenId) {
         alert("Upload Error"+e)
     }
 }
+
+async function delistNFT(tokenId) {
+    try {
+        console.log("delisting nft");
+        const ethers = require("ethers");
+        // After adding your Hardhat network to your Metamask, this code will get providers and signers
+        const provider = new ethers.providers.Web3Provider(window.ethereum);
+        const signer = provider.getSigner();
+        
+        // Pull the deployed contract instance
+        let contract = new ethers.Contract(MarketplaceJSON.address, MarketplaceJSON.abi, signer);
+        
+        updateMessage("Delisting the NFT... Please Wait (Upto 5 mins)");
+        
+        // Run the delistTokenFromMarketplace function
+        // const salePrice = ethers.utils.parseUnits(data.price, 'ether');
+        const transaction = await contract.delistTokenFromMarketplace(
+            tokenId,
+            ethers.utils.parseUnits(data.price.toString(), "ether")
+        );
+        console.log("delisting  smart contract executed");
+        await transaction.wait();
+
+        alert('You successfully delisted the NFT!');
+        updateMessage("");
+    } catch (e) {
+        alert("Error: " + e);
+    }
+}
     
     const params = useParams();
     const tokenId = params.tokenId;
@@ -96,7 +125,7 @@ async function buyNFT(tokenId) {
                     <div>
                     { currAddress != data.owner && currAddress != data.seller ?
                         <button className="enableEthereumButton bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded text-sm" onClick={() => buyNFT(tokenId)}>Buy this NFT</button>
-                        : <div className="text-emerald-700">You are the owner of this NFT</div>
+                        : <button className="enableEthereumButton bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded text-sm" onClick={() => delistNFT(tokenId)}>I Don't Want To Sell This Credit</button>
                     }
                     
                     <div className="text-green text-center mt-3">{message}</div>

@@ -11,7 +11,7 @@ function NFTTile ({data, onList, showListButton = false, showBuyButton = false})
     }
 
     const listButtonLabel = data.listedOnMarketplace ? "Listed on Marketplace" : "Sell";
-    const buyButtonLabel = data.iAmOwner ? "You are the owner" : "Buy";
+    const buyButtonLabel = data.iAmOwner ? 'Delist Credit from Marketplace' : "Buy";
 
     const IPFSUrl = GetIpfsUrlFromPinata(data.image);
 

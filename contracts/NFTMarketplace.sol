@@ -195,7 +195,7 @@ contract NFTMarketplace is ERC721URIStorage {
 
     function delistTokenFromMarketplace(uint256 tokenId, uint256 price) public {
         require(_exists(tokenId), "Token does not exist");
-        require(ownerOf(tokenId) == msg.sender, "Caller is not the owner");
+        require(idToListedToken[tokenId].seller == msg.sender, "Caller is not the seller");
         require(idToListedToken[tokenId].currentlyListed, "Token is not listed");
 
         idToListedToken[tokenId].currentlyListed = false;
@@ -208,10 +208,11 @@ contract NFTMarketplace is ERC721URIStorage {
             tokenId,
             address(this),
             msg.sender,
-            price,
+            idToListedToken[tokenId].price,
             false
         );
     }
+
     function updateSellingPrice(uint256 tokenId, uint256 newPrice) public {
         require(_exists(tokenId), "Token does not exist");
         require(idToListedToken[tokenId].currentlyListed, "Token is not listed");
@@ -250,7 +251,7 @@ contract NFTMarketplace is ERC721URIStorage {
         uint currentIndex = 0;
         uint currentId;
         //Important to get a count of all the NFTs that belong to the user before we can make an array for them
-        for(uint i=0; i < totalItemCount; i++)
+        for(uint i = 0; i < totalItemCount; i++)
         {
             if(idToListedToken[i+1].owner == msg.sender || idToListedToken[i+1].seller == msg.sender){
                 itemCount += 1;
@@ -259,7 +260,7 @@ contract NFTMarketplace is ERC721URIStorage {
 
         //Once you have the count of relevant NFTs, create an array then store all the NFTs in it
         ListedToken[] memory items = new ListedToken[](itemCount);
-        for(uint i=0; i < totalItemCount; i++) {
+        for(uint i = 0; i < totalItemCount; i++) {
             if(idToListedToken[i+1].owner == msg.sender || idToListedToken[i+1].seller == msg.sender) {
                 currentId = i+1;
                 ListedToken storage currentItem = idToListedToken[currentId];
@@ -284,7 +285,7 @@ contract NFTMarketplace is ERC721URIStorage {
 
         //Actually transfer the token to the new owner
         _transfer(address(this), msg.sender, tokenId);
-        
+
         //approve the marketplace to sell NFTs on your behalf
         //I have commented the approve as the sold NFT should be privately transffered in wallet and not to be listed on marketplace
         //approve(address(this), tokenId);
