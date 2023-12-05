@@ -5,7 +5,7 @@ import {
   } from "react-router-dom";
 import { GetIpfsUrlFromPinata } from "../utils";
 
-function NFTTile ({data, onList, showListButton = false, showBuyButton = false}) {
+function NFTTile ({data, showListButton = false, showBuyButton = false}) {
     const newTo = {
         pathname:"/nftPage/"+data.tokenId
     }
@@ -15,17 +15,6 @@ function NFTTile ({data, onList, showListButton = false, showBuyButton = false})
 
     const IPFSUrl = GetIpfsUrlFromPinata(data.image);
 
-    const handleListClick = () => {
-        if (!data.listedOnMarketplace) {
-            onList(data.tokenId);
-        }
-    };
-    const handleBuyClick = () => {
-        // if (!data.iAmOwner) {
-        //     onList(data.tokenId);
-        // }
-    };
-
     return (
         <div className="nft-tile" style={{ marginLeft: '12px', marginTop: '5px', marginBottom: '12px' }}>
             <div className="ml-12 mt-5 mb-12 flex flex-col items-center rounded-lg w-48 md:w-72 shadow-2xl" style={{ boxShadow: '0 4px 8px rgba(10,10,10,0.8)'}}>
@@ -33,7 +22,6 @@ function NFTTile ({data, onList, showListButton = false, showBuyButton = false})
                     <img src={IPFSUrl} alt="" className="border-2 w-72 h-80 rounded-lg object-cover" crossOrigin="anonymous" />
                 </Link>
                 
-                {/* Section moved here, between the image and the button */}
                 <div className="text-white w-full p-2 rounded-lg" style={{ backgroundColor: 'rgba(100, 100, 100, 0.5)' /* Light grey transparent background */ }}>
                     <strong className="text-xl">{data.name}</strong>
                     <p className="display-inline">{data.description}</p>
@@ -46,7 +34,6 @@ function NFTTile ({data, onList, showListButton = false, showBuyButton = false})
                         )}
                         {showListButton && (
                             <button style={NFTButtonStyle}>{buttonLabelInProfileTab}</button>
-                            // <button onClick={handleListClick} className="list-button" style={NFTButtonStyle} disabled={data.listedOnMarketplace}>{buttonLabelInProfileTab}</button>
                         )}
                     </div>
                 </Link>
