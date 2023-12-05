@@ -10,7 +10,7 @@ function NFTTile ({data, onList, showListButton = false, showBuyButton = false})
         pathname:"/nftPage/"+data.tokenId
     }
 
-    const listButtonLabel = data.listedOnMarketplace ? "Listed on Marketplace" : "Sell";
+    const buttonLabelInProfileTab = data.listedOnMarketplace ? "Listed on Marketplace" : "Sell";
     const buyButtonLabel = data.iAmOwner ? 'Delist Credit from Marketplace' : "Buy";
 
     const IPFSUrl = GetIpfsUrlFromPinata(data.image);
@@ -45,7 +45,8 @@ function NFTTile ({data, onList, showListButton = false, showBuyButton = false})
                             <button style={NFTButtonStyle}>{buyButtonLabel}</button>
                         )}
                         {showListButton && (
-                            <button onClick={handleListClick} className="list-button" style={NFTButtonStyle} disabled={data.listedOnMarketplace}>{listButtonLabel}</button>
+                            <button style={NFTButtonStyle}>{buttonLabelInProfileTab}</button>
+                            // <button onClick={handleListClick} className="list-button" style={NFTButtonStyle} disabled={data.listedOnMarketplace}>{buttonLabelInProfileTab}</button>
                         )}
                     </div>
                 </Link>

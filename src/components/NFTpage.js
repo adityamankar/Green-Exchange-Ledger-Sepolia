@@ -36,6 +36,7 @@ async function getNFTData(tokenId) {
         image: meta.image,
         name: meta.name,
         description: meta.description,
+        listedOnMarketplace: listedToken.currentlyListed,
     }
     updateData(item);
     updateDataFetched(true);
@@ -65,9 +66,37 @@ async function buyNFT(tokenId) {
     }
 }
 
+async function listNFT(tokenId) {
+    try {
+        //const tokenPrice = await contract.getTokenPrice(tokenId);
+
+        const ethers = require("ethers");
+        // Logic to interact with the smart contract
+        // You need ethers.js setup similar to getNFTData
+        const provider = new ethers.providers.Web3Provider(window.ethereum);
+        const signer = provider.getSigner();
+        const contract = new ethers.Contract(
+            MarketplaceJSON.address,
+            MarketplaceJSON.abi,
+            signer
+        );
+        const listingPrice = await contract.getListPrice();
+        // Call the smart contract function
+        await contract.listTokenOnMarketplace(
+            tokenId,
+            ethers.utils.parseUnits(data.price.toString(), "ether"),
+            { value: listingPrice }
+        );
+        // Refresh the NFT data to reflect changes
+
+        window.location.replace("/");
+    } catch (e) {
+        alert("Error: " + e);
+    }
+}
+
 async function delistNFT(tokenId) {
     try {
-        console.log("delisting nft");
         const ethers = require("ethers");
         // After adding your Hardhat network to your Metamask, this code will get providers and signers
         const provider = new ethers.providers.Web3Provider(window.ethereum);
@@ -123,11 +152,19 @@ async function delistNFT(tokenId) {
                         Seller: <span className="text-sm">{data.seller}</span>
                     </div>
                     <div>
-                    { currAddress != data.owner && currAddress != data.seller ?
-                        <button className="enableEthereumButton bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded text-sm" onClick={() => buyNFT(tokenId)}>Buy this NFT</button>
-                        : <button className="enableEthereumButton bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded text-sm" onClick={() => delistNFT(tokenId)}>I Don't Want To Sell This Credit</button>
-                    }
-                    
+                        {currAddress !== data.seller ? (
+                            <button className="enableEthereumButton bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded text-sm" onClick={() => buyNFT(tokenId)}>
+                                Buy this NFT
+                            </button>
+                        ) : data.listedOnMarketplace ? (
+                            <button className="enableEthereumButton bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded text-sm" onClick={() => delistNFT(tokenId)}>
+                                Delist from Marketplace
+                            </button>
+                        ) : (
+                            <button className="enableEthereumButton bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded text-sm" onClick={() => listNFT(tokenId)}>
+                                List it on Marketplace
+                            </button>
+                        )}
                     <div className="text-green text-center mt-3">{message}</div>
                     </div>
                 </div>

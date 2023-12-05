@@ -279,7 +279,7 @@ export default function Marketplace() {
                             <Nav.Link eventKey="listed">Listed</Nav.Link>
                         </Nav.Item>
                         <Nav.Item>
-                            <Nav.Link eventKey="delisted">Listed</Nav.Link>
+                            <Nav.Link eventKey="delisted">Delisted</Nav.Link>
                         </Nav.Item>
                     </Nav>
                     <Tab.Content>
