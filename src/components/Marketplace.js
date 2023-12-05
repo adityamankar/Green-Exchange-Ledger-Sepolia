@@ -265,18 +265,18 @@ export default function Marketplace() {
                             <Nav.Link eventKey="all">All</Nav.Link>
                         </Nav.Item>
                         <Nav.Item>
-                            <Nav.Link eventKey="sold">Sold</Nav.Link>
-                        </Nav.Item>
-                        <Nav.Item>
                             <Nav.Link eventKey="minted">Minted</Nav.Link>
                         </Nav.Item>
-                        <Nav.Item>
+                        {/* <Nav.Item>
                             <Nav.Link eventKey="mintedAndListed">
-                                Minted and Listed
+                            Minted and Listed
                             </Nav.Link>
-                        </Nav.Item>
+                        </Nav.Item> */}
                         <Nav.Item>
                             <Nav.Link eventKey="listed">Listed</Nav.Link>
+                        </Nav.Item>
+                        <Nav.Item>
+                            <Nav.Link eventKey="sold">Sold</Nav.Link>
                         </Nav.Item>
                         <Nav.Item>
                             <Nav.Link eventKey="delisted">Delisted</Nav.Link>
@@ -302,13 +302,13 @@ export default function Marketplace() {
                                 )}
                             />
                         </Tab.Pane>
-                        <Tab.Pane eventKey="mintedAndListed">
+                        {/* <Tab.Pane eventKey="mintedAndListed">
                             <TransactionList
                                 transactions={transactionHistory.filter(
                                     (tx) => tx.type === "MINTED AND LISTED"
                                 )}
                             />
-                        </Tab.Pane>
+                        </Tab.Pane> */}
                         <Tab.Pane eventKey="listed">
                             <TransactionList
                                 transactions={transactionHistory.filter(

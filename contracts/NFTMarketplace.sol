@@ -204,18 +204,18 @@ contract NFTMarketplace is ERC721URIStorage {
         _transfer(address(this), msg.sender, tokenId);
 
         // Optionally, emit a delisting event
-        emit TokenDeListedSuccess(
-            tokenId,
-            address(this),
-            msg.sender,
-            idToListedToken[tokenId].price,
-            false
-        );
+        // emit TokenDeListedSuccess(
+        //     tokenId,
+        //     address(this),
+        //     msg.sender,
+        //     idToListedToken[tokenId].price,
+        //     false
+        // );
     }
 
     function updateSellingPrice(uint256 tokenId, uint256 newPrice) public {
         require(_exists(tokenId), "Token does not exist");
-        require(idToListedToken[tokenId].currentlyListed, "Token is not listed");
+        // require(idToListedToken[tokenId].currentlyListed, "Token is not listed");
         require(idToListedToken[tokenId].seller == msg.sender, "Caller is not the seller");
         require(newPrice > 0, "Price must be greater than zero");
 

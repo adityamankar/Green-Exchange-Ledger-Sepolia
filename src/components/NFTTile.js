@@ -11,7 +11,7 @@ function NFTTile ({data, showListButton = false, showBuyButton = false}) {
     }
 
     const buttonLabelInProfileTab = data.listedOnMarketplace ? "Listed on Marketplace" : "Sell";
-    const buyButtonLabel = data.iAmOwner ? 'Delist Credit from Marketplace' : "Buy";
+    const buyButtonLabel = data.iAmOwner ? 'Withdraw' : "Buy";
 
     const IPFSUrl = GetIpfsUrlFromPinata(data.image);
 
@@ -23,17 +23,18 @@ function NFTTile ({data, showListButton = false, showBuyButton = false}) {
                 </Link>
                 
                 <div className="text-white w-full p-2 rounded-lg" style={{ backgroundColor: 'rgba(100, 100, 100, 0.5)' /* Light grey transparent background */ }}>
+                    <strong className="text-xl">Token: {data.tokenId}</strong><br/>
                     <strong className="text-xl">{data.name}</strong>
-                    <p className="display-inline">{data.description}</p>
+                    {/* <p className="display-inline">{data.description}</p> */}
                 </div>
 
                 <Link to={newTo} className="w-full">
                     <div className="w-full" style={{ overflow: 'hidden' }}>
                         {showBuyButton && (
-                            <button style={NFTButtonStyle}>{buyButtonLabel}</button>
+                            <button className="text-xl" style={NFTButtonStyle}>{buyButtonLabel} <br/>{data.price} ( ETH )</button>
                         )}
                         {showListButton && (
-                            <button style={NFTButtonStyle}>{buttonLabelInProfileTab}</button>
+                            <button className="text-xl" style={NFTButtonStyle}>{buttonLabelInProfileTab}</button>
                         )}
                     </div>
                 </Link>
