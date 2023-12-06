@@ -7,6 +7,7 @@ import { useLocation } from "react-router";
 export default function ProduceCreditNFT () {
     const [formParams, updateFormParams] = useState({ name: '', description: '', price: ''});
     const [fileURL, setFileURL] = useState(null);
+    const [selectedOption, setSelectedOption] = useState("mintOnly"); // New state to track selected option
     const ethers = require("ethers");
     const [message, updateMessage] = useState('');
     const location = useLocation();
@@ -98,8 +99,10 @@ export default function ProduceCreditNFT () {
             //Pull the deployed contract instance
             let contract = new ethers.Contract(Marketplace.address, Marketplace.abi, signer)
 
+            const finalPrice = shouldList ? formParams.price : '0';
+
             //massage the params to be sent to the create NFT request
-            const price = ethers.utils.parseUnits(formParams.price, 'ether')
+            const price = ethers.utils.parseUnits(finalPrice, 'ether');
             let listingPrice = await contract.getListPrice()
             listingPrice = listingPrice.toString()
 
@@ -124,7 +127,28 @@ export default function ProduceCreditNFT () {
         <Navbar></Navbar>
         <div className="flex flex-col place-items-center mt-10" id="nftForm">
             <form className="bg-white shadow-md rounded px-8 pt-4 pb-8 mb-4">
-            <h3 className="text-center font-bold text-purple-500 mb-8">Produce new Credit</h3>
+            <h3 className="text-center font-bold text-purple-500 mb-8">Produce New Credit</h3>
+                <div className="flex justify-center mb-4">
+                    <button 
+                       type="button"
+                        className={`font-bold py-2 px-4 rounded-l ${selectedOption === "mintOnly" ? "bg-purple-500 text-white" : "bg-white text-purple-500"}`}
+                        onClick={() => {
+                            setSelectedOption("mintOnly");
+                            updateFormParams({ ...formParams, price: '0' }); // Reset price to 0 when "Mint Only" is selected
+                        }}
+                    >
+                        Mint Only
+                    </button>
+                    <button 
+                        type="button"
+                        className={`font-bold py-2 px-4 rounded-r ${
+                            selectedOption === "mintAndList" ? "bg-purple-500 text-white" : "bg-white text-purple-500"
+                        }`}
+                        onClick={() => setSelectedOption("mintAndList")}
+                    >
+                        Mint and Sell
+                    </button>
+                </div>
                 <div className="mb-4">
                     <label className="block text-purple-500 text-sm font-bold mb-2" htmlFor="name">NFT Name</label>
                     <input className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="name" type="text" placeholder="CC#426" onChange={e => updateFormParams({...formParams, name: e.target.value})} value={formParams.name}></input>
@@ -133,10 +157,12 @@ export default function ProduceCreditNFT () {
                     <label className="block text-purple-500 text-sm font-bold mb-2" htmlFor="description">NFT Description</label>
                     <textarea className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" cols="40" rows="5" id="description" type="text" placeholder="Carbon Credit Collection" value={formParams.description} onChange={e => updateFormParams({...formParams, description: e.target.value})}></textarea>
                 </div>
-                <div className="mb-6">
-                    <label className="block text-purple-500 text-sm font-bold mb-2" htmlFor="price">Price (in ETH)</label>
-                    <input className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" type="number" placeholder="Min 0.01 ETH" step="0.01" value={formParams.price} onChange={e => updateFormParams({...formParams, price: e.target.value})}></input>
-                </div>
+                {selectedOption === "mintAndList" && (
+                    <div className="mb-6">
+                        <label className="block text-purple-500 text-sm font-bold mb-2" htmlFor="price">Price (in ETH)</label>
+                        <input className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" type="number" placeholder="Min 0.01 ETH" step="0.01" value={formParams.price} onChange={e => updateFormParams({...formParams, price: e.target.value})}></input>
+                    </div>
+                )}
                 <div>
                     <label className="block text-purple-500 text-sm font-bold mb-2" htmlFor="image">Upload Image (&lt;500 KB)</label>
                     <input type={"file"} onChange={OnChangeFile}></input>
@@ -144,14 +170,9 @@ export default function ProduceCreditNFT () {
                 <br></br>
                 <div className="text-red-500 text-center">{message}</div>
                 
-                <div className="flex justify-around w-full mt-5" style={{ gap: '10px' }}>
-                    <button onClick={(e) => mintNFT(e, false)} className="font-bold mt-10 w-full bg-purple-500 text-white rounded p-2 shadow-lg" id="mint-button">
-                        Mint NFT
-                    </button>
-                    <button onClick={(e) => mintNFT(e, true)} className="font-bold mt-10 w-full bg-purple-500 text-white rounded p-2 shadow-lg" id="list-button">
-                        Mint and List NFT
-                    </button>
-                </div>
+                <button onClick={(e) => mintNFT(e, selectedOption === "mintAndList")} className="font-bold mt-10 w-full bg-purple-500 text-white rounded p-2 shadow-lg" id="mint-button">
+                    {selectedOption === "mintAndList" ? "Mint and List on Marketplace" : "Mint NFT"}
+                </button>
             </form>
         </div>
         </div>
