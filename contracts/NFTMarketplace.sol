@@ -134,8 +134,8 @@ contract NFTMarketplace is ERC721URIStorage {
             listNFT
         );
 
+        _transfer(msg.sender, address(this), tokenId);
         if (listNFT){
-            _transfer(msg.sender, address(this), tokenId);
             
             //Emit the event for successful transfer. The frontend parses this message and updates the end user
             emit TokenMintAndListSuccess(
@@ -174,15 +174,9 @@ contract NFTMarketplace is ERC721URIStorage {
         require(msg.value == listPrice, "Must pay the listing price");
         require(price > 0, "Price must be greater than zero");
 
-        idToListedToken[tokenId] = ListedToken(
-            tokenId,
-            payable(address(this)),
-            payable(msg.sender),
-            price,
-            true
-        );
-
+        idToListedToken[tokenId].price = price;
         _transfer(msg.sender, address(this), tokenId);
+        idToListedToken[tokenId].currentlyListed = true;
 
         emit TokenListedSuccess(
             tokenId,
@@ -215,7 +209,7 @@ contract NFTMarketplace is ERC721URIStorage {
 
     function updateSellingPrice(uint256 tokenId, uint256 newPrice) public {
         require(_exists(tokenId), "Token does not exist");
-        // require(idToListedToken[tokenId].currentlyListed, "Token is not listed");
+        require(idToListedToken[tokenId].currentlyListed, "Token is not listed");
         require(idToListedToken[tokenId].seller == msg.sender, "Caller is not the seller");
         require(newPrice > 0, "Price must be greater than zero");
 

@@ -8,7 +8,7 @@ import { GetIpfsUrlFromPinata } from "../utils";
 
 export default function NFTPage (props) {
 
-const [formParams, updateFormParams] = useState({ price: ''});
+const [formParams, updateFormParams] = useState({ formPrice: ''});
 const [data, updateData] = useState({});
 const [dataFetched, updateDataFetched] = useState(false);
 const [message, updateMessage] = useState("");
@@ -39,6 +39,7 @@ async function getNFTData(tokenId) {
         description: meta.description,
         listedOnMarketplace: listedToken.currentlyListed,
     }
+
     updateData(item);
     updateDataFetched(true);
     updateCurrAddress(addr);
@@ -69,13 +70,12 @@ async function buyNFT(tokenId) {
 
 async function listNFT(tokenId) {
     try {
-        const {price} = formParams;
-        if(!price)
+        const {formPrice} = formParams;
+        if(!formPrice)
         {
             updateMessage("Please fill all the fields!")
             return -1;
         }
-
         const ethers = require("ethers");
         // Logic to interact with the smart contract
         // You need ethers.js setup similar to getNFTData
@@ -88,20 +88,21 @@ async function listNFT(tokenId) {
         );
         
         // Call the smart contract function
-        await contract.updateSellingPrice(
-            tokenId,
-            ethers.utils.parseUnits(price.toString(), "ether"),
-        );
+        // await contract.updateSellingPrice(
+        //     tokenId,
+        //     ethers.utils.parseUnits(price.toString(), "ether"),
+        // );
         
         const listingPrice = await contract.getListPrice();
         // Call the smart contract function
         await contract.listTokenOnMarketplace(
             tokenId,
-            ethers.utils.parseUnits(data.price.toString(), "ether"),
+            ethers.utils.parseUnits(formPrice.toString(), "ether"),
             { value: listingPrice }
         );
 
-        updateFormParams({price: ''});
+        updateFormParams({formPrice: ''});
+
         window.location.replace("/");
     } catch (e) {
         alert("Error: " + e);
@@ -130,6 +131,8 @@ async function delistNFT(tokenId) {
 
         alert('You successfully delisted the NFT!');
         updateMessage("");
+        window.location.replace("/");
+
     } catch (e) {
         alert("Error: " + e);
     }
@@ -165,8 +168,8 @@ async function delistNFT(tokenId) {
                     </div>
                     {currAddress == data.seller && !data.listedOnMarketplace ? (
                         <div className="mb-6">
-                            <label className="block text-purple-500 text-sm font-bold mb-2" htmlFor="price">Price (in ETH)</label>
-                            <input className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" type="number" placeholder="Min 0.01 ETH" step="0.01" value={formParams.price} onChange={e => updateFormParams({...formParams, price: e.target.value})}></input>
+                            <label className="block text-purple-500 text-sm font-bold mb-2" htmlFor="formPrice">Price (in ETH)</label>
+                            <input className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" type="number" placeholder="Min 0.01 ETH" step="0.01" value={formParams.formPrice} onChange={e => updateFormParams({...formParams, formPrice: e.target.value})}></input>
                         </div>
                     ) : (
                         <div>
