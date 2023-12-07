@@ -5,7 +5,7 @@ import Marketplace from '../Marketplace.json';
 import { useLocation } from "react-router";
 
 export default function ProduceCreditNFT () {
-    const [formParams, updateFormParams] = useState({ name: '', description: '', price: ''});
+    const [formParams, updateFormParams] = useState({ name: '', description: '', price: '0.01'});
     const [fileURL, setFileURL] = useState(null);
     const [selectedOption, setSelectedOption] = useState("mintOnly"); // New state to track selected option
     const ethers = require("ethers");
@@ -13,10 +13,12 @@ export default function ProduceCreditNFT () {
     const location = useLocation();
 
     async function disableButton() {
-        const listButton = document.getElementById("list-button")
-        listButton.disabled = true
-        listButton.style.backgroundColor = "grey";
-        listButton.style.opacity = 0.3;
+        
+        // I have added 2 section "mint only" and "mint and list" instead of 2 buttons. Now we have only one button
+        // const listButton = document.getElementById("list-button")
+        // listButton.disabled = true
+        // listButton.style.backgroundColor = "grey";
+        // listButton.style.opacity = 0.3;
 
         const mintButton = document.getElementById("mint-button")
         mintButton.disabled = true
@@ -25,10 +27,12 @@ export default function ProduceCreditNFT () {
     }
 
     async function enableButton() {
-        const listButton = document.getElementById("list-button")
-        listButton.disabled = false
-        listButton.style.backgroundColor = "#A500FF";
-        listButton.style.opacity = 1;
+
+        // I have added 2 section "mint only" and "mint and list" instead of 2 buttons. Now we have only one button
+        // const listButton = document.getElementById("list-button")
+        // listButton.disabled = false
+        // listButton.style.backgroundColor = "#A500FF";
+        // listButton.style.opacity = 1;
 
         const mintButton = document.getElementById("mint-button")
         mintButton.disabled = false
@@ -59,10 +63,11 @@ export default function ProduceCreditNFT () {
     //This function uploads the metadata to IPFS
     async function uploadMetadataToIPFS() {
         const {name, description, price} = formParams;
+        console.log("price : ", price);
         //Make sure that none of the fields are empty
         if( !name || !description || !price || !fileURL)
         {
-            updateMessage("Please fill all the fields!")
+            updateMessage("IPFS Please fill all the fields!")
             return -1;
         }
 
@@ -99,10 +104,8 @@ export default function ProduceCreditNFT () {
             //Pull the deployed contract instance
             let contract = new ethers.Contract(Marketplace.address, Marketplace.abi, signer)
 
-            const finalPrice = shouldList ? formParams.price : '0';
-
             //massage the params to be sent to the create NFT request
-            const price = ethers.utils.parseUnits(finalPrice, 'ether');
+            const price = ethers.utils.parseUnits(formParams.price, 'ether');
             let listingPrice = await contract.getListPrice()
             listingPrice = listingPrice.toString()
 
@@ -130,20 +133,18 @@ export default function ProduceCreditNFT () {
             <h3 className="text-center font-bold text-purple-500 mb-8">Produce New Credit</h3>
                 <div className="flex justify-center mb-4">
                     <button 
-                       type="button"
+                        type="button"
                         className={`font-bold py-2 px-4 rounded-l ${selectedOption === "mintOnly" ? "bg-purple-500 text-white" : "bg-white text-purple-500"}`}
                         onClick={() => {
                             setSelectedOption("mintOnly");
-                            updateFormParams({ ...formParams, price: '0' }); // Reset price to 0 when "Mint Only" is selected
+                            updateFormParams({ ...formParams, price: '0.01' }); // Set price to '0.01' when "Mint Only" is selected
                         }}
                     >
                         Mint Only
                     </button>
                     <button 
                         type="button"
-                        className={`font-bold py-2 px-4 rounded-r ${
-                            selectedOption === "mintAndList" ? "bg-purple-500 text-white" : "bg-white text-purple-500"
-                        }`}
+                        className={`font-bold py-2 px-4 rounded-r ${ selectedOption === "mintAndList" ? "bg-purple-500 text-white" : "bg-white text-purple-500"}`}
                         onClick={() => setSelectedOption("mintAndList")}
                     >
                         Mint and Sell
