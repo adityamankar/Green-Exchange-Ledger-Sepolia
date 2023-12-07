@@ -246,8 +246,7 @@ export default function Marketplace() {
                             <NFTTile
                                 data={value}
                                 key={index}
-                                showListButton={false}
-                                showBuyButton={true}
+                                sourcePage='Marketplace'
                             ></NFTTile>
                         );
                     })}
