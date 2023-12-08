@@ -134,8 +134,8 @@ contract NFTMarketplace is ERC721URIStorage {
             listNFT
         );
 
-        _transfer(msg.sender, address(this), tokenId);
         if (listNFT){
+            _transfer(msg.sender, address(this), tokenId);
             
             //Emit the event for successful transfer. The frontend parses this message and updates the end user
             emit TokenMintAndListSuccess(
@@ -157,17 +157,6 @@ contract NFTMarketplace is ERC721URIStorage {
         }
     }
 
-    // //The first time a token is created, it is listed here
-    // function createTokenAndList(string memory tokenURI, uint256 price) public payable returns (uint) {
-    
-    //     uint256 newTokenId = createToken(tokenURI);
-
-    //     //Helper function to update Global variables and emit an event
-    //     listTokenOnMarketplace(newTokenId, price);
-
-    //     return newTokenId;
-    // } 
-
     function listTokenOnMarketplace(uint256 tokenId, uint256 price) public payable {
         require(_exists(tokenId), "Token does not exist");
         require(ownerOf(tokenId) == msg.sender, "Caller is not the owner");
@@ -187,6 +176,27 @@ contract NFTMarketplace is ERC721URIStorage {
         );
     }
 
+    function updateSellingPrice(uint256 tokenId, uint256 newPrice) public {
+        require(_exists(tokenId), "Token does not exist");
+        require(idToListedToken[tokenId].currentlyListed, "Token is not listed");
+        require(idToListedToken[tokenId].seller == msg.sender, "Caller is not the seller");
+        require(newPrice > 0, "Price must be greater than zero");
+
+        idToListedToken[tokenId].price = newPrice;
+
+        // Emit an event if needed
+        // emit PriceUpdated(tokenId, newPrice);
+    }
+
+    function updateTokenURI(uint256 tokenId, string memory newTokenURI) public {
+        require(_exists(tokenId), "Token does not exist");
+        require(idToListedToken[tokenId].seller == msg.sender, "Caller is not the seller");
+
+        _setTokenURI(tokenId, newTokenURI); // Update the tokenURI
+
+        // Emit an event if needed
+        // emit TokenURIUpdated(tokenId, newTokenURI);
+    }
     function delistTokenFromMarketplace(uint256 tokenId, uint256 price) public {
         require(_exists(tokenId), "Token does not exist");
         require(idToListedToken[tokenId].seller == msg.sender, "Caller is not the seller");
@@ -205,18 +215,6 @@ contract NFTMarketplace is ERC721URIStorage {
         //     idToListedToken[tokenId].price,
         //     false
         // );
-    }
-
-    function updateSellingPrice(uint256 tokenId, uint256 newPrice) public {
-        require(_exists(tokenId), "Token does not exist");
-        require(idToListedToken[tokenId].currentlyListed, "Token is not listed");
-        require(idToListedToken[tokenId].seller == msg.sender, "Caller is not the seller");
-        require(newPrice > 0, "Price must be greater than zero");
-
-        idToListedToken[tokenId].price = newPrice;
-
-        // Emit an event if needed
-        // emit PriceUpdated(tokenId, newPrice);
     }
 
     //This will return all the NFTs currently listed to be sold on the marketplace
