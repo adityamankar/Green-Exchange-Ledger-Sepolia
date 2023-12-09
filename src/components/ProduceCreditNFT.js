@@ -56,14 +56,13 @@ export default function ProduceCreditNFT () {
             }
         }
         catch(e) {
-            console.log("Error during file upload", e);
+            alert("Error during file upload", e);
         }
     }
 
     //This function uploads the metadata to IPFS
     async function uploadMetadataToIPFS() {
         const {name, description, price} = formParams;
-        console.log("price : ", price);
         //Make sure that none of the fields are empty
         if( !name || !description || !price || !fileURL)
         {
@@ -78,21 +77,23 @@ export default function ProduceCreditNFT () {
         try {
             //upload the metadata JSON to IPFS
             const response = await uploadJSONToIPFS(nftJSON);
+
             if(response.success === true){
                 return response.pinataURL;
             }
         }
         catch(e) {
-            console.log("error uploading JSON metadata:", e)
+            alert("error uploading JSON metadata:", e)
         }
     }
-
+    
     async function mintNFT(e, shouldList) {
         e.preventDefault();
-
+        
         //Upload data to IPFS
         try {
             const metadataURL = await uploadMetadataToIPFS();
+            
             if(metadataURL === -1)
                 return;
             //After adding your Hardhat network to your metamask, this code will get providers and signers

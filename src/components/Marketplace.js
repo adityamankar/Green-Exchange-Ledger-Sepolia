@@ -158,7 +158,6 @@ export default function Marketplace() {
         );
         //create an NFT Token
         let transaction = await contract.getAllNFTs();
-
         //Fetch all the details of every NFT from the contract and display
         const items = await Promise.all(
             transaction.map(async (i) => {
@@ -166,7 +165,7 @@ export default function Marketplace() {
                 if (!i.currentlyListed) {
                     return null; // Skip this NFT
                 }
-
+                
                 var tokenURI = await contract.tokenURI(i.tokenId);
                 tokenURI = GetIpfsUrlFromPinata(tokenURI);
                 let meta = await axios.get(tokenURI);

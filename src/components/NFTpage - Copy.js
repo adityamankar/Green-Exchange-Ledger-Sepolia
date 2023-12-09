@@ -5,14 +5,13 @@ import MarketplaceJSON from "../Marketplace.json";
 import axios from "axios";
 import { useState } from "react";
 import { GetIpfsUrlFromPinata } from "../utils";
-import { uploadFileToIPFS, uploadJSONToIPFS } from "../pinata";
 
 //should be same in NFTTile
 const validNFTState = ["Listed", "NotListed", "NotOwner"];
 const validOperations = ["Buy", "Withdraw", "Update", "Sell"];
 
 export default function NFTPage({ props }) {
-    const [formParams, updateFormParams] = useState({ formPrice: "0.01" });
+    const [formParams, updateFormParams] = useState({ formPrice: "" });
     const [data, updateData] = useState({});
     const [dataFetched, updateDataFetched] = useState(false);
     const [message, updateMessage] = useState("");
@@ -22,6 +21,7 @@ export default function NFTPage({ props }) {
     const params = useParams();
     const tokenId = params.tokenId;
     const currentOperationState = params.currentOperationState;
+    console.log(params);
 
     if (!dataFetched) getNFTData(tokenId);
     if (typeof data.image == "string") {
@@ -131,66 +131,6 @@ export default function NFTPage({ props }) {
         }
     }
 
-    // Function to handle updating the price and URI
-    async function updatePriceAndURI(tokenId, formPrice) {
-
-        const ethers = require("ethers");
-        //After adding your Hardhat network to your metamask, this code will get providers and signers
-        const provider = new ethers.providers.Web3Provider(window.ethereum);
-        const signer = provider.getSigner();
-        const addr = await signer.getAddress();
-        //Pull the deployed contract instance
-        let contract = new ethers.Contract(
-            MarketplaceJSON.address,
-            MarketplaceJSON.abi,
-            signer
-        );
-        
-        //This function uploads the metadata to IPFS
-        async function uploadMetadataToIPFS() {
-
-            var tokenURI = await contract.tokenURI(tokenId);
-            const listedToken = await contract.getListedTokenForId(tokenId);
-            tokenURI = GetIpfsUrlFromPinata(tokenURI);
-            let meta = await axios.get(tokenURI);
-            const name = meta.data.name;
-            const description = meta.data.description;
-            const image = meta.data.image;
-            const price = formPrice;
-            const nftJSON = {
-                name, description, price, image
-            }
-            
-            try {
-                //upload the metadata JSON to IPFS
-                const response = await uploadJSONToIPFS(nftJSON);
-
-                if(response.success === true){
-                    return response.pinataURL;
-                }
-            }
-            catch(e) {
-                alert("error uploading JSON metadata:", e)
-            }
-        }
-        try {
-            const metadataURL = await uploadMetadataToIPFS();
-
-            if(metadataURL === -1){
-                alert("incorrect metadataURL");
-                return;
-            }
-            updateMessage("Updating Price (takes 5 mins).. please don't click anything!")
-            const price = ethers.utils.parseUnits(formPrice, 'ether');
-            let transaction = await contract.updateTokenURIForPriceUpdate(tokenId, metadataURL, price);
-            await transaction.wait();
-
-            window.location.replace("/");
-        } catch (error) {
-            alert("Error updating URI and price in contract");
-        }
-    }
-
     async function delistNFT(tokenId) {
         try {
             const ethers = require("ethers");
@@ -245,7 +185,9 @@ export default function NFTPage({ props }) {
                                 onClick={() => setSelectedOption("update")} >
                                 Update Price
                             </button></>
-                        ) : ( alert("Operation not supported") )}
+                        ) : (
+                            alert("Operation not supported")
+                        )}
                     </div>
                     <div>Token ID: {tokenId}</div>
                     <div>Name: {data.name}</div>
@@ -268,24 +210,10 @@ export default function NFTPage({ props }) {
                                 Withdraw
                             </button>
                         ) : currentOperationState == "Update" ? (
-                            <><div className="mb-6">
-                                <label className="block text-purple-500 text-sm font-bold mb-2" htmlFor="price">
-                                    Price (in ETH)
-                                </label>
-                                <input
-                                    className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                                    type="number" placeholder="Min 0.01 ETH" step="0.01" value={formParams.price}
-                                    onChange={(e) =>
-                                        updateFormParams({
-                                            price: e.target.value,
-                                        })
-                                    }
-                                ></input>
-                            </div>
                             <button className="enableEthereumButton bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded text-sm"
-                                onClick={() => updatePriceAndURI(tokenId, formParams.price)}>
-                                Update Price
-                            </button></>
+                                onClick={() => delistNFT(tokenId)}>
+                                Withdraw
+                            </button>
                         ) : currentOperationState == "Sell" ? (
                             <>
                                 {selectedOption == "update" && (

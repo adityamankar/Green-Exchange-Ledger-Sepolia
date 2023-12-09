@@ -183,7 +183,7 @@ contract NFTMarketplace is ERC721URIStorage {
         require(newPrice > 0, "Price must be greater than zero");
 
         idToListedToken[tokenId].price = newPrice;
-
+    
         // Emit an event if needed
         // emit PriceUpdated(tokenId, newPrice);
     }
@@ -197,6 +197,19 @@ contract NFTMarketplace is ERC721URIStorage {
         // Emit an event if needed
         // emit TokenURIUpdated(tokenId, newTokenURI);
     }
+
+    function updateTokenURIForPriceUpdate(uint256 tokenId, string memory newTokenURI, uint256 newPrice) public {
+        require(_exists(tokenId), "Token does not exist");
+        require(idToListedToken[tokenId].seller == msg.sender, "Caller is not the seller");
+        require(newPrice > 0, "Price must be greater than zero");
+
+        idToListedToken[tokenId].price = newPrice;
+        _setTokenURI(tokenId, newTokenURI); // Update the tokenURI
+
+        // Emit an event if needed
+        // emit TokenURIUpdated(tokenId, newTokenURI);
+    }
+
     function delistTokenFromMarketplace(uint256 tokenId, uint256 price) public {
         require(_exists(tokenId), "Token does not exist");
         require(idToListedToken[tokenId].seller == msg.sender, "Caller is not the seller");
