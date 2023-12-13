@@ -91,13 +91,14 @@ export default function NFTPage({ props }) {
         }
     }
 
-    async function listNFT(tokenId) {
+    async function listNFT(tokenId, formPrice) {
         try {
-            const { formPrice } = formParams;
+            // const { formPrice } = formParams;
             if (!formPrice) {
                 updateMessage("Please fill all the fields!");
                 return -1;
             }
+            
             const ethers = require("ethers");
             // Logic to interact with the smart contract
             // You need ethers.js setup similar to getNFTData
@@ -132,7 +133,7 @@ export default function NFTPage({ props }) {
     }
 
     // Function to handle updating the price and URI
-    async function updatePriceAndURI(tokenId, formPrice) {
+    async function updatePriceAndURI(tokenId, formPrice, shouldSell) {
 
         const ethers = require("ethers");
         //After adding your Hardhat network to your metamask, this code will get providers and signers
@@ -173,6 +174,7 @@ export default function NFTPage({ props }) {
                 alert("error uploading JSON metadata:", e)
             }
         }
+
         try {
             const metadataURL = await uploadMetadataToIPFS();
 
@@ -180,9 +182,17 @@ export default function NFTPage({ props }) {
                 alert("incorrect metadataURL");
                 return;
             }
-            updateMessage("Updating Price (takes 5 mins).. please don't click anything!")
+            updateMessage("Updating Price (takes 5 mins).. please don't click anything!")                
+                
+            const listingPrice = await contract.getListPrice();
             const price = ethers.utils.parseUnits(formPrice, 'ether');
-            let transaction = await contract.updateTokenURIForPriceUpdate(tokenId, metadataURL, price);
+            let transaction = await contract.updateTokenURIForPriceUpdate(
+                tokenId,
+                metadataURL,
+                price,
+                shouldSell,
+                { value: listingPrice }
+            );
             await transaction.wait();
 
             window.location.replace("/");
@@ -237,15 +247,22 @@ export default function NFTPage({ props }) {
                         ) : currentOperationState == "Update" ? (
                             <div>Update Selling Price</div>
                         ) : currentOperationState == "Sell" ? (
-                            <><button type="button" className={`font-bold py-2 px-4 rounded-l ${selectedOption === "default" ? "bg-purple-500 text-white" : "bg-white text-purple-500"}`}
-                                onClick={() => setSelectedOption("default")}>
-                                Sell
-                            </button>
-                            <button type="button" className={`font-bold py-2 px-4 rounded-r ${ selectedOption === "update" ? "bg-purple-500 text-white" : "bg-white text-purple-500" }`}
-                                onClick={() => setSelectedOption("update")} >
-                                Update Price
-                            </button></>
-                        ) : ( alert("Operation not supported") )}
+                            <>
+                                <button
+                                    type="button" className={`font-bold py-2 px-4 rounded-l ${ selectedOption === "default" ? "bg-purple-500 text-white" : "bg-white text-purple-500" }`}
+                                    onClick={() => setSelectedOption("default")}
+                                >
+                                    Sell
+                                </button>
+                                <button type="button" className={`font-bold py-2 px-4 rounded-r ${ selectedOption === "update" ? "bg-purple-500 text-white" : "bg-white text-purple-500"  }`}
+                                    onClick={() => setSelectedOption("update")}
+                                >
+                                    Update Price
+                                </button>
+                            </>
+                        ) : (
+                            alert("Operation not supported")
+                        )}
                     </div>
                     <div>Token ID: {tokenId}</div>
                     <div>Name: {data.name}</div>
@@ -259,57 +276,63 @@ export default function NFTPage({ props }) {
                     <div>
                         {currentOperationState == "Buy" ? (
                             <button className="enableEthereumButton bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded text-sm"
-                                onClick={() => buyNFT(tokenId)} >
+                                onClick={() => buyNFT(tokenId)}
+                            >
                                 Buy this NFT
                             </button>
                         ) : currentOperationState == "Withdraw" ? (
                             <button className="enableEthereumButton bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded text-sm"
-                                onClick={() => delistNFT(tokenId)} >
+                                onClick={() => delistNFT(tokenId)}
+                            >
                                 Withdraw
                             </button>
                         ) : currentOperationState == "Update" ? (
-                            <><div className="mb-6">
-                                <label className="block text-purple-500 text-sm font-bold mb-2" htmlFor="price">
-                                    Price (in ETH)
-                                </label>
-                                <input
-                                    className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                                    type="number" placeholder="Min 0.01 ETH" step="0.01" value={formParams.price}
-                                    onChange={(e) =>
-                                        updateFormParams({
-                                            price: e.target.value,
-                                        })
-                                    }
-                                ></input>
-                            </div>
-                            <button className="enableEthereumButton bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded text-sm"
-                                onClick={() => updatePriceAndURI(tokenId, formParams.price)}>
-                                Update Price
-                            </button></>
+                            <>
+                                <div className="mb-6">
+                                    <label className="block text-purple-500 text-sm font-bold mb-2" htmlFor="price">
+                                        Price (in ETH)
+                                    </label>
+                                    <input className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" type="number" placeholder="Min 0.01 ETH" step="0.01" value={formParams.price}
+                                        onChange={(e) =>
+                                            updateFormParams({
+                                                price: e.target.value,
+                                            })
+                                        }
+                                    ></input>
+                                </div>
+                                <button className="enableEthereumButton bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded text-sm"
+                                    onClick={() => updatePriceAndURI(tokenId, formParams.price, false)}>
+                                    Update Price
+                                </button>
+                            </>
                         ) : currentOperationState == "Sell" ? (
                             <>
-                                {selectedOption == "update" && (
-                                    <div className="mb-6">
-                                        <label className="block text-purple-500 text-sm font-bold mb-2" htmlFor="price">
+                                {selectedOption === "update" ? (
+                                    <><div className="mb-6">
+                                        <label className="block text-purple-500 text-sm font-bold mb-2"  htmlFor="price">
                                             Price (in ETH)
                                         </label>
-                                        <input
-                                            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                                            type="number" placeholder="Min 0.01 ETH" step="0.01" value={formParams.price}
-                                            onChange={(e) =>
-                                                updateFormParams({
+                                        <input className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" type="number" placeholder="Min 0.01 ETH" step="0.01" value={formParams.price}
+                                            onChange={(e) => updateFormParams({
                                                     ...formParams,
                                                     price: e.target.value,
                                                 })
                                             }
                                         ></input>
                                     </div>
+                                    <button className="enableEthereumButton bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded text-sm"
+                                        onClick={() => updatePriceAndURI(tokenId, formParams.price, true)}
+                                    >
+                                        List it on Marketplace
+                                    </button>
+                                    </>
+                                ) : (
+                                    <button className="enableEthereumButton bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded text-sm"
+                                        onClick={() => listNFT(tokenId, data.price)}
+                                    >
+                                        List it on Marketplace
+                                    </button>            
                                 )}
-                                <button
-                                    className="enableEthereumButton bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded text-sm"
-                                    onClick={() => listNFT(tokenId)}>
-                                    List it on Marketplace
-                                </button>
                             </>
                         ) : (
                             alert("Operation not supported")

@@ -101,7 +101,7 @@ contract NFTMarketplace is ERC721URIStorage {
         return _tokenIds.current();
     }
 
-     //The first time a token is created, it is listed here
+    //The first time a token is created, it is listed here
     function createToken(string memory tokenURI, uint256 price, bool listNFT) public payable returns (uint) {
         //Increment the tokenId counter, which is keeping track of the number of minted NFTs
         _tokenIds.increment();
@@ -136,25 +136,14 @@ contract NFTMarketplace is ERC721URIStorage {
 
         if (listNFT){
             _transfer(msg.sender, address(this), tokenId);
-            
-            //Emit the event for successful transfer. The frontend parses this message and updates the end user
-            emit TokenMintAndListSuccess(
-                tokenId,
-                address(this),
-                msg.sender,
-                price,
-                listNFT
-            );
         }
-        else {
-            emit TokenMintSuccess(
-                tokenId,
-                address(this),
-                msg.sender,
-                price,
-                listNFT
-            );
-        }
+        emit TokenMintSuccess(
+            tokenId,
+            address(this),
+            msg.sender,
+            price,
+            listNFT
+        );
     }
 
     function listTokenOnMarketplace(uint256 tokenId, uint256 price) public payable {
@@ -163,6 +152,7 @@ contract NFTMarketplace is ERC721URIStorage {
         require(msg.value == listPrice, "Must pay the listing price");
         require(price > 0, "Price must be greater than zero");
 
+        payable(owner).transfer(listPrice);     //transfer listing price to marketplace creator
         idToListedToken[tokenId].price = price;
         _transfer(msg.sender, address(this), tokenId);
         idToListedToken[tokenId].currentlyListed = true;
@@ -176,38 +166,28 @@ contract NFTMarketplace is ERC721URIStorage {
         );
     }
 
-    function updateSellingPrice(uint256 tokenId, uint256 newPrice) public {
+    function updateTokenURIForPriceUpdate(uint256 tokenId, string memory newTokenURI, uint256 newPrice, bool shouldList) public payable {
         require(_exists(tokenId), "Token does not exist");
-        require(idToListedToken[tokenId].currentlyListed, "Token is not listed");
+        require(msg.value == listPrice, "Must pay the listing price");
         require(idToListedToken[tokenId].seller == msg.sender, "Caller is not the seller");
         require(newPrice > 0, "Price must be greater than zero");
 
-        idToListedToken[tokenId].price = newPrice;
-    
-        // Emit an event if needed
-        // emit PriceUpdated(tokenId, newPrice);
-    }
-
-    function updateTokenURI(uint256 tokenId, string memory newTokenURI) public {
-        require(_exists(tokenId), "Token does not exist");
-        require(idToListedToken[tokenId].seller == msg.sender, "Caller is not the seller");
-
-        _setTokenURI(tokenId, newTokenURI); // Update the tokenURI
-
-        // Emit an event if needed
-        // emit TokenURIUpdated(tokenId, newTokenURI);
-    }
-
-    function updateTokenURIForPriceUpdate(uint256 tokenId, string memory newTokenURI, uint256 newPrice) public {
-        require(_exists(tokenId), "Token does not exist");
-        require(idToListedToken[tokenId].seller == msg.sender, "Caller is not the seller");
-        require(newPrice > 0, "Price must be greater than zero");
-
+        payable(owner).transfer(listPrice);     //transfer listing price to marketplace creator
         idToListedToken[tokenId].price = newPrice;
         _setTokenURI(tokenId, newTokenURI); // Update the tokenURI
 
-        // Emit an event if needed
-        // emit TokenURIUpdated(tokenId, newTokenURI);
+        if(shouldList) {
+            idToListedToken[tokenId].currentlyListed = true;
+            _transfer(msg.sender, address(this), tokenId);
+        }
+
+        emit TokenListedSuccess(
+            tokenId,
+            address(this),
+            msg.sender,
+            newPrice,
+            shouldList
+        );
     }
 
     function delistTokenFromMarketplace(uint256 tokenId, uint256 price) public {
@@ -230,6 +210,28 @@ contract NFTMarketplace is ERC721URIStorage {
         // );
     }
 
+    // function updateSellingPrice(uint256 tokenId, uint256 newPrice) public {
+    //     require(_exists(tokenId), "Token does not exist");
+    //     require(idToListedToken[tokenId].currentlyListed, "Token is not listed");
+    //     require(idToListedToken[tokenId].seller == msg.sender, "Caller is not the seller");
+    //     require(newPrice > 0, "Price must be greater than zero");
+
+    //     idToListedToken[tokenId].price = newPrice;
+    
+    //     // Emit an event if needed
+    //     // emit PriceUpdated(tokenId, newPrice);
+    // }
+
+    // function updateTokenURI(uint256 tokenId, string memory newTokenURI) public {
+    //     require(_exists(tokenId), "Token does not exist");
+    //     require(idToListedToken[tokenId].seller == msg.sender, "Caller is not the seller");
+
+    //     _setTokenURI(tokenId, newTokenURI); // Update the tokenURI
+
+    //     // Emit an event if needed
+    //     // emit TokenURIUpdated(tokenId, newTokenURI);
+    // }
+
     //This will return all the NFTs currently listed to be sold on the marketplace
     function getAllNFTs() public view returns (ListedToken[] memory) {
         uint nftCount = _tokenIds.current();
@@ -238,7 +240,7 @@ contract NFTMarketplace is ERC721URIStorage {
         uint currentId;
         //at the moment currentlyListed is true for all, if it becomes false in the future we will
         //filter out currentlyListed == false over here
-        for(uint i=0;i<nftCount;i++)
+        for(uint i = 0; i<nftCount; i++)
         {
             currentId = i + 1;
             ListedToken storage currentItem = idToListedToken[currentId];

@@ -68,23 +68,6 @@ export default function SellNFT () {
         updateTotalPrice(sumPrice.toPrecision(3));
     }
 
-    const listNFT = async (tokenId) => {
-
-        const ethers = require("ethers");
-        // Logic to interact with the smart contract
-        // You need ethers.js setup similar to getNFTData
-        const provider = new ethers.providers.Web3Provider(window.ethereum);
-        const signer = provider.getSigner();
-        const contract = new ethers.Contract(MarketplaceJSON.address, MarketplaceJSON.abi, signer);
-        const listingPrice = await contract.getListPrice();
-        // Call the smart contract function
-        await contract.listTokenOnMarketplace(tokenId, ethers.utils.parseUnits("0.1", 'ether'), { value: listingPrice });
-        // Refresh the NFT data to reflect changes
-        await getNFTData();
-        
-        window.location.replace("/")
-    };
-
     const params = useParams();
     const tokenId = params.tokenId;
     if(!dataFetched)
@@ -114,7 +97,7 @@ export default function SellNFT () {
                 <h2 className="font-bold">Your NFTs</h2>
                 <div className="flex justify-center flex-wrap max-w-screen-xl">
                     {data.map((value, index) => (
-                        <NFTTile data={value} key={index} onList={listNFT} sourcePage='SellNFT'></NFTTile>
+                        <NFTTile data={value} key={index} sourcePage='SellNFT'></NFTTile>
                     ))}
                 </div>
                 <div className="mt-10 text-xl">
