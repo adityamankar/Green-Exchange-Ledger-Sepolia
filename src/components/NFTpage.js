@@ -9,7 +9,7 @@ import { uploadFileToIPFS, uploadJSONToIPFS } from "../pinata";
 
 //should be same in NFTTile
 const validNFTState = ["Listed", "NotListed", "NotOwner"];
-const validOperations = ["Buy", "Withdraw", "Update", "Sell"];
+const validOperations = ["Details", "Buy", "Withdraw", "Update", "Sell"];
 
 export default function NFTPage({ props }) {
     const [formParams, updateFormParams] = useState({ formPrice: "0.01" });
@@ -26,6 +26,10 @@ export default function NFTPage({ props }) {
     if (!dataFetched) getNFTData(tokenId);
     if (typeof data.image == "string") {
         data.image = GetIpfsUrlFromPinata(data.image);
+    }
+
+    function goToMarketplace() {
+            window.location.replace("/");
     }
 
     async function getNFTData(tokenId) {
@@ -240,7 +244,9 @@ export default function NFTPage({ props }) {
                 <img src={data.image} alt="" className="w-2/5" />
                 <div className="text-xl ml-20 space-y-8 text-white shadow-2xl rounded-lg border-2 p-5">
                     <div className="flex justify-center mb-4">
-                        {currentOperationState == "Buy" ? (
+                        {currentOperationState == "Details" ? (
+                            <div>Token Information</div>
+                        ) : currentOperationState == "Buy" ? (
                             <div>Buy this NFT</div>
                         ) : currentOperationState == "Withdraw" ? (
                             <div>Remove Credit from Marketplace</div>
@@ -274,7 +280,13 @@ export default function NFTPage({ props }) {
                         Price: <span className="">{data.price + " ETH"}</span>
                     </div>
                     <div>
-                        {currentOperationState == "Buy" ? (
+                        {currentOperationState == "Details" ? (
+                            <button className="enableEthereumButton bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded text-sm"
+                                onClick={() => goToMarketplace()}
+                            >
+                                Back to Marketplace
+                            </button>
+                        ) : currentOperationState == "Buy" ? (
                             <button className="enableEthereumButton bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded text-sm"
                                 onClick={() => buyNFT(tokenId)}
                             >

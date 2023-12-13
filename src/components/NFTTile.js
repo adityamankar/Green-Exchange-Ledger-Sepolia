@@ -9,7 +9,7 @@ import { useState, useEffect } from "react";
 
 const validSourcePages = ["Profile", "Marketplace", "SellNFT"];
 const validNFTState = ["Listed", "NotListed", "NotOwner"];
-const validOperations = ["Buy", "Withdraw", "Update", "Sell"];
+const validOperations = ["Details", "Buy", "Withdraw", "Update", "Sell"];
 
 function NFTTile ({data, sourcePage}) {
     const [currentNFTState, setCurrentNFTState] = useState("");
@@ -38,8 +38,9 @@ function NFTTile ({data, sourcePage}) {
     return (
         <div className="nft-tile" style={{ marginLeft: "12px", marginTop: "5px", marginBottom: "12px",}}>
             <div className="ml-12 mt-5 mb-12 flex flex-col items-center rounded-lg w-48 md:w-72 shadow-2xl" style={{ boxShadow: "0 4px 8px rgba(10,10,10,0.8)" }} >
-                <img src={IPFSUrl} alt="" className="w-72 h-80 border-2 rounded-lg object-cover" crossOrigin="anonymous" />
-
+                <div onClick={() => handleOperationChange(data.tokenId, "Details")}>
+                    <img src={IPFSUrl} alt="" className="w-72 h-80 border-2 rounded-lg object-cover" crossOrigin="anonymous" />
+                </div>
                 <div className="text-white w-full p-2 rounded-lg" style={{ backgroundColor: "rgba(100, 100, 100, 0.5)", }}>
                     <strong className="text-xl">Token: {data.tokenId}</strong>
                     <br />
