@@ -7,9 +7,10 @@ Link is also given in ABOUT section of this project Git
 
 ## How to interact with application
 
-Download and install Brave browser : https://brave.com/download/
+You can use Chrome browser
+or download and install Brave browser : https://brave.com/download/
 
-Download metamask wallet on your browser: https://metamask.io/
+Download metamask wallet and attach on your browser: https://metamask.io/
 
 Get yourself some free Sepolia (Ether) 
 1. You will need to create Alchemy account to get them for free. [ https://www.alchemy.com/ ]
